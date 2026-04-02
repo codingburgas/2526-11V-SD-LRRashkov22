@@ -1,22 +1,26 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Personal_Finance_Tracker.Data;
+using Personal_Finance_Tracker.Models;
+using Personal_Finance_Tracker.Services;
 using Scalar.AspNetCore;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Personal_Finance_Tracker.Data;
-using Personal_Finance_Tracker.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
 builder.Services.AddOpenApi();
 builder.Services.AddDbContext<UserDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+  options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+
 //JWT Authentication configuration-----------------------------------
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -43,7 +47,25 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod());
 });
 var app = builder.Build();
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<UserDbContext>();
 
+    if (!context.Users.Any(u => u.Role == "Admin"))
+    {
+        var admin = new User
+        {
+            Username = "adi",
+            Role = "Admin"
+        };
+
+        admin.PasswordHash = new PasswordHasher<User>()
+            .HashPassword(admin, "adi");
+
+        context.Users.Add(admin);
+        context.SaveChanges();
+    }
+}
 
 if (app.Environment.IsDevelopment())
 {

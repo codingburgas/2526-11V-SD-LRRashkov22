@@ -8,7 +8,7 @@ using Personal_Finance_Tracker.Models.UserDto;
 using Microsoft.AspNetCore.Identity;
 using Personal_Finance_Tracker.Services;
 using Microsoft.AspNetCore.Authorization;
-
+using System.Threading.Tasks;
 namespace Personal_Finance_Tracker.Controller;
 
 [Route("api/[controller]")]
@@ -16,19 +16,24 @@ namespace Personal_Finance_Tracker.Controller;
 
 public class AuthController(IAuthService AuthService) : ControllerBase {
     public static User user = new();
+
     [HttpPost("register")]
     public async Task<ActionResult<User>> Register(UserDto request) {
-        var user = await AuthService.RegisterAsync(request);
-        if(user == null) return BadRequest("User already exists");
+        var (user,error) = await AuthService.RegisterAsync(request);
+        //return a BadRequest with the error message
+        if (error != null) return BadRequest(error);
+
         return Ok(user);
     }
+
     [HttpPost("login")]
     public async Task<ActionResult<TokenResponseDto>> login(UserDto request)
     {
-     var result =  await AuthService.LoginAsync(request);
-        if(result is null) return BadRequest("Invalid username or password");
+     var (result, error) =  await AuthService.LoginAsync(request);
+        if(error != null) return BadRequest(error);
         return Ok(result);
     }
+
     [Authorize]
     [HttpGet]
     public IActionResult AuthenticatedOnlyEndpoint() { 
@@ -41,6 +46,7 @@ public class AuthController(IAuthService AuthService) : ControllerBase {
     {
         return Ok("You are Admin.");
     }
+
     [HttpPost("refresh-token")]
     public async Task<ActionResult<TokenResponseDto>> RefreshToken(RefreshTokenRequestDto requestDto) { 
     var result = await AuthService.RefreshTokensAsync(requestDto);

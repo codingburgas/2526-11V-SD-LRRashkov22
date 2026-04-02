@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Personal_Finance_Tracker.Data;
@@ -8,44 +9,70 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-
+using System.Threading.Tasks;
 namespace Personal_Finance_Tracker.Services;
 
-    public class AuthService(UserDbContext context, IConfiguration configuration) : IAuthService
+
+public class AuthService(UserDbContext context, IConfiguration configuration) : IAuthService
 {
     //Register-------------------------------------------------------------------
-    public async Task<User?> RegisterAsync(UserDto request)
+    public async Task<(User? user, string? error)> RegisterAsync(UserDto request)
     {
-        if (await context.Users.AnyAsync(u => u.Username == request.Username))
-        {
-            return null;
-        }
+        //Username tests
+        if (await context.Users.AnyAsync(u => u.Username == request.Username)) return (null, "User already exists");
+        if (request.Username.Length < 3) return (null, "Username must be at least 3 characters long");
+        if (request.Username.Length > 20) return (null, "Username must be maximum 20 characters long");
+        if (string.IsNullOrEmpty(request.Username)) return (null, "Username cannot be empty");
+        if (request.Username.Any(ch => !char.IsLetterOrDigit(ch))) return (null, "Username cannot contain special symbols");
+
+        //Password tests
+        if (string.IsNullOrEmpty(request.Password)) return (null, "Password cannot be empty");
+        if (request.Password.Length < 8) return (null, "Password must be at least 8 characters long");
+        if (request.Password.Length > 30) return (null, "Password must be maximum 30 characters long");
+        if (!request.Password.Any(char.IsUpper)) return (null, "Password must contain at least one uppercase letter");
+        if (!request.Password.Any(char.IsLower)) return (null, "Password must contain at least one lowercase letter");
+        if (!request.Password.Any(char.IsDigit)) return (null, "Password must contain at least one digit");
+        if (!request.Password.Any(ch => !char.IsLetterOrDigit(ch))) return (null, "Password must contain at least one special character");
+
+        //Create user
         var user = new User();
-        var hashedPassword = new PasswordHasher<User>()
-            .HashPassword(user, request.Password);
+        var hashedPassword = new PasswordHasher<User>().HashPassword(user, request.Password);
         user.Username = request.Username;
         user.PasswordHash = hashedPassword;
+        //Default role is User
+        user.Role = "User";
         context.Users.Add(user);
         await context.SaveChangesAsync();
-        return user;
+        return (user, null);
     }
     //Register-------------------------------------------------------------------
 
     //Login----------------------------------------------------------------------
-    public async Task<TokenResponseDto?> LoginAsync(UserDto request)
+    public async Task<(TokenResponseDto? tokenRespone, string? error)> LoginAsync(UserDto request)
     {
+        
         var user = await context.Users.FirstOrDefaultAsync(u => u.Username == request.Username);
         if (user is null)
         {
-            return null;
+            return (null, "User not found");
         }
         if (new PasswordHasher<User>().VerifyHashedPassword(user, user.PasswordHash, request.Password)
             == PasswordVerificationResult.Failed)
         {
-            return null;
+            user.FailedAttempts++;
+            if (user.FailedAttempts >= 5) { user.LockEnd = DateTime.UtcNow.AddMinutes(1); user.FailedAttempts = 0; }
+            await context.SaveChangesAsync();
+            return (null, "User not found");
         }
-        
-        return await CreateTokenResponse(user);
+        if (user.LockEnd > DateTime.UtcNow || user.FailedAttempts >= 5) {
+            return (null, $"exceeded attempts, try again after 1 minute");
+        }
+        user.FailedAttempts = 0;
+        user.LockEnd = DateTime.UtcNow;
+
+        await context.SaveChangesAsync();
+
+        return (await CreateTokenResponse(user), null);
     }
     //Login----------------------------------------------------------------------
 
@@ -54,7 +81,7 @@ namespace Personal_Finance_Tracker.Services;
     {
         var claims = new List<Claim> {
         new Claim(ClaimTypes.Name, user.Username),
-        new Claim(ClaimTypes.NameIdentifier, user.id.ToString()),
+        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
         new Claim(ClaimTypes.Role, user.Role)
       };
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration.GetValue<string>("AppSettings:Token")!));
@@ -72,18 +99,13 @@ namespace Personal_Finance_Tracker.Services;
 
     private string GenerateRefreshToken()
     {
-        var randomNumber = new byte[32];
-        Console.ForegroundColor = ConsoleColor.Red;
-
-        // Print the red text
-        Console.WriteLine(randomNumber);
-
-        // Reset the console color to default
-        Console.ResetColor();
-        
-        using var rng = RandomNumberGenerator.Create();
-        rng.GetBytes(randomNumber);
-        return Convert.ToBase64String(randomNumber);
+        var randomBytes = RandomNumberGenerator.GetBytes(32);
+       
+        var token = Convert.ToBase64String(randomBytes)
+            .TrimEnd('=')
+            .Replace('+', '-')
+            .Replace('/', '_');
+        return token;
     }
 
     private async Task<string> GenerateAndSaveRefreshTokenAsync(User user)
