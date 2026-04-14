@@ -1,6 +1,6 @@
 ﻿using Personal_Finance_Tracker.Data;
-using Personal_Finance_Tracker.Models;
 using Personal_Finance_Tracker.Models.CardDto;
+using Personal_Finance_Tracker.Models.Entities;
 namespace Personal_Finance_Tracker.Services.CardManage;
 
 public class CardService(UserDbContext context) : ICardService

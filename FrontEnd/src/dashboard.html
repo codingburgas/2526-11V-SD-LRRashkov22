@@ -5,120 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    html, body {
-      height: 100%;
-      margin: 0;
-      overflow: hidden; /* маха scroll */
-      background-color: #f5f6fa;
-    }
-
-    .app {
-      height: 100vh;
-      display: flex;
-    }
-
-    .sidebar {
-      width: 240px;
-      background-color: #1e3a5f;
-      color: white;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-
-    .sidebar a {
-      color: #cfd8dc;
-      display: block;
-      padding: 10px;
-      text-decoration: none;
-      border-radius: 6px;
-      margin-bottom: 5px;
-    }
-
-    .sidebar a.active,
-    .sidebar a:hover {
-      background-color: #2f4f6f;
-      color: white;
-    }
-
-    .main {
-      flex: 1;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .content {
-      flex: 1;
-      display: flex;
-      gap: 20px;
-    }
-
-    .left {
-      flex: 3;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    .right {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    .cards {
-      display: flex;
-      gap: 20px;
-    }
-
-    .card-box {
-      flex: 1;
-      height: 100px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .chart-box {
-      flex: 1;
-      min-height: 250px;
-    }
-
-    .transactions-box {
-      flex: 1;
-      min-height: 150px;
-    }
-
-    .fake-card {
-      height: 120px;
-      background: #2c3e50;
-      border-radius: 12px;
-    }
-
-    .recent-transactions {
-      flex: 1;
-      overflow: hidden; /* без scroll */
-    }
-
-    /* прави layout-а стабилен на различни монитори */
-    @media (min-width: 1400px) {
-      .main {
-        max-width: 1400px;
-        margin: 0 auto;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="./style.css">
 </head>
 <body>
 
@@ -130,14 +17,14 @@
       <h4>PFT</h4>
       <hr>
       <a class="active">Dashboard</a>
-      <a>Analytics</a>
+      <a href="./analytics.html">Analytics</a>
       <br>
       <small>MANAGEMENT</small>
-      <a>Transactions</a>
+      <a href="./Transaction.html">Transactions</a>
       <a>Cards</a>
       <a>Savings</a>
     </div>
-    <a>Log Out</a>
+    <a onclick="logout()">Log Out</a>
   </div>
 
   <!-- Main -->
@@ -147,36 +34,96 @@
     <div class="top-bar">
       <div>
         <h3>Dashboard</h3>
-        <p class="text-muted">Welcome back, User!</p>
+        
+        <p class="text-muted" id="welcome-message">Welcome back!</p>
       </div>
       <div>
-        <button class="btn btn-outline-secondary">Deposit</button>
-        <button class="btn btn-dark">Withdraw</button>
+        <button onclick="openDeposit()" class="btn btn-outline-secondary">Deposit</button>
+        <button onclick="openWithdraw()" class="btn btn-dark">Withdraw</button>
       </div>
     </div>
 
     <!-- Content -->
-    <div class="content">
+    <div class="content ">
 
       <!-- Left -->
       <div class="left">
 
         <!-- Cards -->
         <div class="cards">
-          <div class="card card-box">Total Balance</div>
-          <div class="card card-box">Income</div>
-          <div class="card card-box">Expenses</div>
-        </div>
+  <div class="card card-box">
+    <div>
+      <p>Total Balance</p>
+      <h5 id="balance">0</h5>
+    </div>
+  </div>
+
+  <div class="card card-box">
+    <div>
+      <p>Income</p>
+      <h5 id="income">0</h5>
+    </div>
+  </div>
+
+  <div class="card card-box">
+    <div>
+      <p>Expenses</p>
+      <h5 id="expenses">0</h5>
+    </div>
+  </div>
+</div>
 
         <!-- Chart -->
-        <div class="card chart-box p-3">
-          Financial Overview (Chart)
+        <div class="card chart-box px-3 pt-2">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <div>
+              <h6 class="mb-0">Financial Overview</h6>
+            </div>
+            <div class="d-flex gap-3 align-items-center">
+              <div class="d-flex align-items-center gap-2">
+                <span style="width: 10px; height: 10px; background: #0d6efd; border-radius: 50%; display: inline-block;"></span>
+                <span>Income</span>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <span style="width: 10px; height: 10px; background: #dc3545; border-radius: 50%; display: inline-block;"></span>
+                <span>Expenses</span>
+              </div>
+                            <div class="d-flex align-items-center gap-2">
+                <span style="width: 10px; height: 10px; background: #28a746; border-radius: 50%; display: inline-block;"></span>
+                <span>Balance</span>
+              </div>
+            </div>
+            <div class="dropdown">
+              <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="chartRangeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                Time range
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="chartRangeDropdown">
+                <li><button class="dropdown-item" type="button" onclick="setMode('daily', 7)">7 days</button></li>
+                <li><button class="dropdown-item" type="button" onclick="setMode('daily', 30)">30 days</button></li>
+                <li><button class="dropdown-item" type="button" onclick="setMode('monthly', 365)">Monthly</button></li>
+                <li><button class="dropdown-item" type="button" onclick="setMode('yearly', 3650)">Yearly</button></li>
+              </ul>
+            </div>
+          </div>
+          <canvas id="financeChart"></canvas>
         </div>
 
         <!-- Table -->
-        <div class="card transactions-box p-3">
-          Expense Transactions (Table)
-        </div>
+<div class="card transactions-box pt-2 px-3 ">
+  <h6>Expenses</h6>
+
+  <table class="table">
+    <thead class="table-light">
+      <tr>
+        <th>Date</th>
+        <th>Category</th>
+        <th>Amount</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody id="transactions-table"></tbody>
+  </table>
+</div>
 
       </div>
 
@@ -188,9 +135,10 @@
           <p>Available Balance</p>
         </div>
 
-        <div class="card recent-transactions p-3">
-          Recent Transactions
-        </div>
+<div class="card recent-transactions p-3">
+  <h6>Recent Transactions</h6>
+  <div id="recent-list"></div>
+</div>
 
       </div>
 
@@ -199,6 +147,25 @@
   </div>
 
 </div>
+<div class="modal fade" id="transactionModal">
+  <div class="modal-dialog">
+    <div class="modal-content p-3">
 
+      <h5 id="modal-title">Add Transaction</h5>
+
+      <input id="amount" class="form-control mb-2" placeholder="Amount" />
+      <input id="description" class="form-control mb-2" placeholder="Description" />
+      <input type="date" id="date" class="form-control mb-2" placeholder="Date"/>
+      <select id="category" class="form-control mb-2"></select>
+
+      <button onclick="submitTransaction()" class="btn btn-primary">Save</button>
+
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module" src="pages/dashboard.js"></script>
+<script type="module" src="main.js"></script>
 </body>
 </html>

@@ -5,14 +5,16 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Personal_Finance_Tracker.Data;
-using Personal_Finance_Tracker.Models;
 using Personal_Finance_Tracker.Services.Auth;
 using Personal_Finance_Tracker.Services.CategoryService;
 using Scalar.AspNetCore;
-using System;
+using System.Text;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
+using Personal_Finance_Tracker.Services.TransactionService;
+using Personal_Finance_Tracker.Models.Entities;
+using Personal_Finance_Tracker.Services.DashboardService;
+using Personal_Finance_Tracker.Services.Analytics;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
@@ -39,6 +41,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<ITransactionService, TransactionService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
 //----------------------------------------------------------------------
 builder.Services.AddCors(options =>
 {

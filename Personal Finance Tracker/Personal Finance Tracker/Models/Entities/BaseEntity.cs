@@ -1,4 +1,4 @@
-﻿namespace Personal_Finance_Tracker.Models
+﻿namespace Personal_Finance_Tracker.Models.Entities
 {
     public abstract class BaseEntity
     {

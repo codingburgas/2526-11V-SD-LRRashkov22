@@ -1,8 +1,8 @@
 ﻿using Personal_Finance_Tracker.Models.CategoryDto;
-using Personal_Finance_Tracker.Models;
 using Personal_Finance_Tracker.Data;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Personal_Finance_Tracker.Models.Entities;
 namespace Personal_Finance_Tracker.Services.CategoryService;
 
 public class CategoryService : ICategoryService
@@ -13,6 +13,9 @@ public class CategoryService : ICategoryService
     {
         this.context = context;
     }
+    //public async Task<(List<Category> cat, string? error)> GetChartCategory(int userId) { 
+    
+    //}
     public async Task<(List<Category> cat, string? error)> GetCategory()
     {
         var categories = await context.Categories.ToListAsync();
@@ -30,7 +33,8 @@ public class CategoryService : ICategoryService
         var category = new Category
         {
             Name = request.Name,
-            BudgetLimit = request.BudgetLimit
+            BudgetLimit = request.BudgetLimit,
+            IsIncome = request.IsIncome
         };
 
         context.Categories.Add(category);
@@ -51,12 +55,10 @@ public class CategoryService : ICategoryService
 
             category.Name = request.Name;
             category.BudgetLimit = request.BudgetLimit;
+            category.IsIncome = request.IsIncome;
 
             await context.SaveChangesAsync();
-            return (category, null);
-            
-        
-          
+            return (category, null);    
     }
 
     public async Task<(Category? cat, string? error)> DeleteCategoryAdminOnly(CategoryDto request) { 

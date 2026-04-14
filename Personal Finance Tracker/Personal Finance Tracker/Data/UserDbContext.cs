@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Personal_Finance_Tracker.Models;
+using Personal_Finance_Tracker.Models.Entities;
 namespace Personal_Finance_Tracker.Data;
 
     public class UserDbContext(DbContextOptions<UserDbContext> options) : DbContext(options)

@@ -22,7 +22,7 @@ namespace Personal_Finance_Tracker.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Personal_Finance_Tracker.Models.Card", b =>
+            modelBuilder.Entity("Personal_Finance_Tracker.Models.Entities.Card", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -64,7 +64,7 @@ namespace Personal_Finance_Tracker.Migrations
                     b.ToTable("Cards");
                 });
 
-            modelBuilder.Entity("Personal_Finance_Tracker.Models.Category", b =>
+            modelBuilder.Entity("Personal_Finance_Tracker.Models.Entities.Category", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -77,6 +77,9 @@ namespace Personal_Finance_Tracker.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsIncome")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -92,7 +95,7 @@ namespace Personal_Finance_Tracker.Migrations
                     b.ToTable("Categories");
                 });
 
-            modelBuilder.Entity("Personal_Finance_Tracker.Models.Transaction", b =>
+            modelBuilder.Entity("Personal_Finance_Tracker.Models.Entities.Transaction", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -103,7 +106,7 @@ namespace Personal_Finance_Tracker.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("numeric");
 
-                    b.Property<int>("CardId")
+                    b.Property<int?>("CardId")
                         .HasColumnType("integer");
 
                     b.Property<int>("CategoryId")
@@ -136,7 +139,7 @@ namespace Personal_Finance_Tracker.Migrations
                     b.ToTable("Transactions");
                 });
 
-            modelBuilder.Entity("Personal_Finance_Tracker.Models.User", b =>
+            modelBuilder.Entity("Personal_Finance_Tracker.Models.Entities.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -176,9 +179,9 @@ namespace Personal_Finance_Tracker.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Personal_Finance_Tracker.Models.Card", b =>
+            modelBuilder.Entity("Personal_Finance_Tracker.Models.Entities.Card", b =>
                 {
-                    b.HasOne("Personal_Finance_Tracker.Models.User", "User")
+                    b.HasOne("Personal_Finance_Tracker.Models.Entities.User", "User")
                         .WithMany("Cards")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -187,9 +190,9 @@ namespace Personal_Finance_Tracker.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Personal_Finance_Tracker.Models.Category", b =>
+            modelBuilder.Entity("Personal_Finance_Tracker.Models.Entities.Category", b =>
                 {
-                    b.HasOne("Personal_Finance_Tracker.Models.User", "User")
+                    b.HasOne("Personal_Finance_Tracker.Models.Entities.User", "User")
                         .WithMany("Categories")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -197,21 +200,19 @@ namespace Personal_Finance_Tracker.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Personal_Finance_Tracker.Models.Transaction", b =>
+            modelBuilder.Entity("Personal_Finance_Tracker.Models.Entities.Transaction", b =>
                 {
-                    b.HasOne("Personal_Finance_Tracker.Models.Card", "Card")
+                    b.HasOne("Personal_Finance_Tracker.Models.Entities.Card", "Card")
                         .WithMany("Transactions")
-                        .HasForeignKey("CardId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CardId");
 
-                    b.HasOne("Personal_Finance_Tracker.Models.Category", "Category")
+                    b.HasOne("Personal_Finance_Tracker.Models.Entities.Category", "Category")
                         .WithMany("Transactions")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Personal_Finance_Tracker.Models.User", "User")
+                    b.HasOne("Personal_Finance_Tracker.Models.Entities.User", "User")
                         .WithMany("Transactions")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -224,17 +225,17 @@ namespace Personal_Finance_Tracker.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Personal_Finance_Tracker.Models.Card", b =>
+            modelBuilder.Entity("Personal_Finance_Tracker.Models.Entities.Card", b =>
                 {
                     b.Navigation("Transactions");
                 });
 
-            modelBuilder.Entity("Personal_Finance_Tracker.Models.Category", b =>
+            modelBuilder.Entity("Personal_Finance_Tracker.Models.Entities.Category", b =>
                 {
                     b.Navigation("Transactions");
                 });
 
-            modelBuilder.Entity("Personal_Finance_Tracker.Models.User", b =>
+            modelBuilder.Entity("Personal_Finance_Tracker.Models.Entities.User", b =>
                 {
                     b.Navigation("Cards");
 

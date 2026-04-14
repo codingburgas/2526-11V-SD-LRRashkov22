@@ -1,4 +1,4 @@
-﻿namespace Personal_Finance_Tracker.Models
+﻿namespace Personal_Finance_Tracker.Models.Entities
 {
     public class Transaction : BaseEntity
     {
@@ -10,7 +10,7 @@
         public Category Category { get; set; } = null!;
         public int UserId { get; set; }
         public User User { get; set; } = null!;
-        public int CardId { get; set; }
-        public Card Card { get; set; } = null!;
+        public int? CardId { get; set; }
+        public Card? Card { get; set; } 
     }
 }

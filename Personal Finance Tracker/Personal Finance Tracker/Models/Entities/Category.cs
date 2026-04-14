@@ -1,4 +1,4 @@
-﻿namespace Personal_Finance_Tracker.Models
+﻿namespace Personal_Finance_Tracker.Models.Entities
 {
     public class Category : BaseEntity
     {
@@ -6,6 +6,7 @@
         public decimal BudgetLimit { get; set; }     
         public int? UserId { get; set; } 
         public User? User { get; set; }
+        public bool IsIncome { get; set; }
         public ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
     }
 }

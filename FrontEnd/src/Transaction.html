@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div>
+      <h4>PFT</h4>
+      <hr>
+      <a href="./dashboard.html">Dashboard</a>
+      <a href="./analytics.html">Analytics</a>
+      <br>
+      <small>MANAGEMENT</small>
+      <a href="./Transaction.html" class="active">Transactions</a>
+      <a href="./Cards.html">Cards</a>
+      <a href="./Savings.html">Savings</a>
+    </div>
+    <a onclick="logout()">Log Out</a>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+
+    <!-- Header -->
+    <div class="top-bar">
+      <div>
+        <h3>Transactions</h3>
+        
+        <p class="text-muted">See all your transactions</p>
+      </div>
+      <div>
+        <button onclick="openDeposit()" class="btn btn-outline-secondary">Deposit</button>
+        <button onclick="openWithdraw()" class="btn btn-dark">Withdraw</button>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content ">
+
+      <!-- Left -->
+      <div class="left">
+
+
+
+        <!-- Table -->
+<div class="card transactions-box pt-2 px-3 ">
+    <div class="d-inline-flex justify-content-between w-100 mb-3">
+              <h6>Transactions</h6>
+              <div class="dropdown">
+              <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="chartRangeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                Filter
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="chartRangeDropdown">
+                <li><button class="dropdown-item" type="button" onclick="applyTransactionSort('oldest')">Oldest</button></li>
+                <li><button class="dropdown-item" type="button" onclick="applyTransactionSort('newest')">Newest</button></li>
+                <li><button class="dropdown-item" type="button" onclick="applyTransactionSort('mostAmount')">Most amount</button></li>
+                <li><button class="dropdown-item" type="button" onclick="applyTransactionSort('lessAmount')">Less amount</button></li>
+                <li><button class="dropdown-item" type="button" onclick="applyTransactionType('expenses')">Expenses</button></li>
+                <li><button class="dropdown-item" type="button" onclick="applyTransactionType('income')">Income</button></li>
+                <li class="dropdown-submenu">
+                  <button class="dropdown-item dropdown-toggle" type="button">Category</button>
+                  <ul class="dropdown-menu" id="categoryFilterSubmenu"></ul>
+                </li>
+              </ul>
+            </div>
+    </div>
+  <table class="table">
+    <thead class="table-light">
+      <tr>
+        <th>Date</th>
+        <th>Category</th>
+        <th>Amount</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody id="transactions-table"></tbody>
+  </table>
+</div>
+
+
+</div>
+<div class="modal fade" id="transactionModal">
+  <div class="modal-dialog">
+    <div class="modal-content p-3">
+
+      <h5 id="modal-title">Add Transaction</h5>
+
+      <input id="amount" class="form-control mb-2" placeholder="Amount" />
+      <input id="description" class="form-control mb-2" placeholder="Description" />
+      <input type="date" id="date" class="form-control mb-2" placeholder="Date"/>
+      <select id="category" class="form-control mb-2"></select>
+
+      <button onclick="submitTransaction()" class="btn btn-primary">Save</button>
+
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module" src="pages/transaction.js"></script>
+<script type="module" src="main.js"></script>
+</body>
+</html>

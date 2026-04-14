@@ -3,12 +3,12 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Personal_Finance_Tracker.Models;
 using Personal_Finance_Tracker.Models.UserDto;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using System.Threading.Tasks;
 using Personal_Finance_Tracker.Services.Auth;
+using Personal_Finance_Tracker.Models.Entities;
 namespace Personal_Finance_Tracker.Controller;
 
 [Route("api/[controller]")]

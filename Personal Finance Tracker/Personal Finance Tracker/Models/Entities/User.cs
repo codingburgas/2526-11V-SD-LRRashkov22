@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.CompilerServices;
-namespace Personal_Finance_Tracker.Models;
+namespace Personal_Finance_Tracker.Models.Entities;
 
 public class User : BaseEntity
 {

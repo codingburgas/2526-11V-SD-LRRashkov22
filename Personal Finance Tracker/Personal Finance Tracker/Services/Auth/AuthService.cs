@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Personal_Finance_Tracker.Data;
-using Personal_Finance_Tracker.Models;
+using Personal_Finance_Tracker.Models.Entities;
 using Personal_Finance_Tracker.Models.UserDto;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;

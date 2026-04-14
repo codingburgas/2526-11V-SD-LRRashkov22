@@ -1,4 +1,4 @@
-﻿using Personal_Finance_Tracker.Models;
+﻿using Personal_Finance_Tracker.Models.Entities;
 using Personal_Finance_Tracker.Models.UserDto;
 using System.Threading.Tasks;
 namespace Personal_Finance_Tracker.Services.Auth

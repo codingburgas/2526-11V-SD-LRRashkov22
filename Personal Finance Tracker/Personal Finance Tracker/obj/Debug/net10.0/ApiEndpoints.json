@@ -1,5 +1,15 @@
 [
   {
+    "ContainingType": "Personal_Finance_Tracker.Controller.AnalyticsController",
+    "Method": "GetBudgetInformation",
+    "RelativePath": "api/Analytics/budget",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "Personal_Finance_Tracker.Controller.AuthController",
     "Method": "AuthenticatedOnlyEndpoint",
     "RelativePath": "api/Auth",
@@ -87,7 +97,7 @@
     ],
     "ReturnTypes": [
       {
-        "Type": "Personal_Finance_Tracker.Models.User",
+        "Type": "Personal_Finance_Tracker.Models.Entities.User",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -158,6 +168,73 @@
         "IsRequired": true
       }
     ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Personal_Finance_Tracker.Controller.DashboardController",
+    "Method": "GetDashboard",
+    "RelativePath": "api/Dashboard",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Personal_Finance_Tracker.Controller.DashboardController",
+    "Method": "GetChart",
+    "RelativePath": "api/Dashboard/chart",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "days",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "mode",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Personal_Finance_Tracker.Controller.TransactionController",
+    "Method": "CreateTransactionAsync",
+    "RelativePath": "api/Transaction",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Personal_Finance_Tracker.Models.TransactionDto.CreateTransactionDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Personal_Finance_Tracker.Controller.TransactionController",
+    "Method": "GetTransactionsAsync",
+    "RelativePath": "api/Transaction",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Personal_Finance_Tracker.Controller.TransactionController",
+    "Method": "GetRecentTransactionsAsync",
+    "RelativePath": "api/Transaction/recent",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
     "ReturnTypes": []
   }
 ]

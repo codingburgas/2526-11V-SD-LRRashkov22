@@ -256,7 +256,6 @@ D:\Personal_Finance_Tracker\project-LRRashkov22\Personal Finance Tracker\Persona
 D:\Personal_Finance_Tracker\project-LRRashkov22\Personal Finance Tracker\Personal Finance Tracker\obj\Debug\net10.0\staticwebassets.development.json
 D:\Personal_Finance_Tracker\project-LRRashkov22\Personal Finance Tracker\Personal Finance Tracker\obj\Debug\net10.0\staticwebassets.build.endpoints.json
 D:\Personal_Finance_Tracker\project-LRRashkov22\Personal Finance Tracker\Personal Finance Tracker\obj\Debug\net10.0\swae.build.ex.cache
-D:\Personal_Finance_Tracker\project-LRRashkov22\Personal Finance Tracker\Personal Finance Tracker\obj\Debug\net10.0\staticwebassets.upToDateCheck.txt
 D:\Personal_Finance_Tracker\project-LRRashkov22\Personal Finance Tracker\Personal Finance Tracker\obj\Debug\net10.0\Personal.F423869A.Up2Date
 D:\Personal_Finance_Tracker\project-LRRashkov22\Personal Finance Tracker\Personal Finance Tracker\obj\Debug\net10.0\Personal Finance Tracker.dll
 D:\Personal_Finance_Tracker\project-LRRashkov22\Personal Finance Tracker\Personal Finance Tracker\obj\Debug\net10.0\refint\Personal Finance Tracker.dll
@@ -291,3 +290,4 @@ D:\Personal_Finance_Tracker\project-LRRashkov22\Personal Finance Tracker\Persona
 D:\Personal_Finance_Tracker\project-LRRashkov22\Personal Finance Tracker\Personal Finance Tracker\bin\Debug\net10.0\runtimes\win-arm64\native\e_sqlite3.dll
 D:\Personal_Finance_Tracker\project-LRRashkov22\Personal Finance Tracker\Personal Finance Tracker\bin\Debug\net10.0\runtimes\win-x64\native\e_sqlite3.dll
 D:\Personal_Finance_Tracker\project-LRRashkov22\Personal Finance Tracker\Personal Finance Tracker\bin\Debug\net10.0\runtimes\win-x86\native\e_sqlite3.dll
+D:\Personal_Finance_Tracker\project-LRRashkov22\Personal Finance Tracker\Personal Finance Tracker\obj\Debug\net10.0\staticwebassets.upToDateCheck.txt
