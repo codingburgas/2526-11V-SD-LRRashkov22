@@ -153,6 +153,9 @@ namespace Personal_Finance_Tracker.Migrations
                     b.Property<int?>("FailedAttempts")
                         .HasColumnType("integer");
 
+                    b.Property<bool>("HasCompletedCategorySetup")
+                        .HasColumnType("boolean");
+
                     b.Property<DateTime?>("LockEnd")
                         .HasColumnType("timestamp with time zone");
 

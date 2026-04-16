@@ -181,6 +181,42 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "Personal_Finance_Tracker.Controller.CategoryContorller",
+    "Method": "GetDefaultCategories",
+    "RelativePath": "api/categories/defaults",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Personal_Finance_Tracker.Controller.CategoryContorller",
+    "Method": "SetupCategories",
+    "RelativePath": "api/categories/setup",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Personal_Finance_Tracker.Models.CategoryDto.CategorySetupDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Personal_Finance_Tracker.Controller.CategoryContorller",
+    "Method": "GetSetupStatus",
+    "RelativePath": "api/categories/setup-status",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "Personal_Finance_Tracker.Controller.DashboardController",
     "Method": "GetDashboard",
     "RelativePath": "api/Dashboard",

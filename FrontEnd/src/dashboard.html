@@ -181,6 +181,32 @@
   </div>
 </div>
 
+                  <!-- setup modal -->
+<div class="modal fade" id="SetupModal" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content p-4">
+
+      <h4>Setup your categories</h4>
+
+      <h6 class="mt-3">Default categories</h6>
+      <div id="setup-categories"></div>
+
+      <hr/>
+
+      <h6>Custom categories</h6>
+      <div id="custom-categories"></div>
+
+      <button onclick="addCustomCategory()" class="btn btn-outline-secondary mb-3">
+        + Add category
+      </button>
+
+      <button onclick="submitSetup()" class="btn btn-primary w-100">
+        Save
+      </button>
+
+    </div>
+  </div>
+</div>
 
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

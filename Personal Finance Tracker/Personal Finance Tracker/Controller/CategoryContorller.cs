@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Personal_Finance_Tracker.Models.CategoryDto;
 using Personal_Finance_Tracker.Models.Entities;
 using Personal_Finance_Tracker.Services.CategoryService;
+using System.Security.Claims;
 namespace Personal_Finance_Tracker.Controller
 {
     [Route("api/categories")]
@@ -21,9 +22,20 @@ namespace Personal_Finance_Tracker.Controller
         [HttpGet]
         public async Task<ActionResult> GetCategory()
         {
-            var (cat, error) = await category.GetCategory();
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            // var (cat, error) = await category.GetCategory(userId);
+            var (cat, error) = await category.GetCategory(userId);
             if (error != null) return BadRequest(error);
             return Ok(cat);
+        }
+
+        [HttpGet("defaults")]
+        [Authorize]
+        public async Task<ActionResult> GetDefaultCategories()
+        {
+            var categories = await category.GetDefaultCategories();
+
+            return Ok(categories);
         }
 
         [Authorize(Roles = "Admin")]
@@ -61,6 +73,32 @@ namespace Personal_Finance_Tracker.Controller
             return Ok("Deleted");
         }
 
+        //-----------------------------------------------------------------------------------
+
+        [HttpGet("setup-status")]
+        [Authorize]
+        public async Task<ActionResult> GetSetupStatus()
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            var done = await category.HasCompletedSetup(userId);
+
+            return Ok(done);
+        }
+
+        [HttpPost("setup")]
+        [Authorize]
+        public async Task<ActionResult> SetupCategories([FromBody] CategorySetupDto request)
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            var (success, error) = await category.SetupUserCategories(userId, request);
+
+            if (!success)
+                return BadRequest(error);
+
+            return Ok();
+        }
 
     }
 }

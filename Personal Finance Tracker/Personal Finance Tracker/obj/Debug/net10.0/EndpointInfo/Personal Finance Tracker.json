@@ -250,6 +250,18 @@
         }
       }
     },
+    "/api/categories/defaults": {
+      "get": {
+        "tags": [
+          "CategoryContorller"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/categories/{id}": {
       "put": {
         "tags": [
@@ -315,6 +327,50 @@
             }
           }
         ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/categories/setup-status": {
+      "get": {
+        "tags": [
+          "CategoryContorller"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/categories/setup": {
+      "post": {
+        "tags": [
+          "CategoryContorller"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategorySetupDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategorySetupDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategorySetupDto"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "200": {
             "description": "OK"
@@ -592,6 +648,15 @@
             ],
             "format": "int32"
           },
+          "userId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
           "name": {
             "type": "string"
           },
@@ -605,6 +670,28 @@
               "string"
             ],
             "format": "double"
+          }
+        }
+      },
+      "CategorySetupDto": {
+        "type": "object",
+        "properties": {
+          "defaultCategoryIds": {
+            "type": "array",
+            "items": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          "customCategories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateCategoryDto"
+            }
           }
         }
       },
@@ -781,6 +868,9 @@
             "items": {
               "$ref": "#/components/schemas/Card"
             }
+          },
+          "hasCompletedCategorySetup": {
+            "type": "boolean"
           },
           "id": {
             "pattern": "^-?(?:0|[1-9]\\d*)$",

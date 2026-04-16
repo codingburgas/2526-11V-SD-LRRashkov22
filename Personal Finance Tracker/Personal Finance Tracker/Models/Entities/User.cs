@@ -22,6 +22,7 @@ public class User : BaseEntity
     public DateTime? LockEnd { get; set; }
     public int? FailedAttempts { get; set; } = 0;
     public ICollection<Card> Cards { get; set; } = new List<Card>();
+    public bool HasCompletedCategorySetup { get; set; } = false;
 
 }
 

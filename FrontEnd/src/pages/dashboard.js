@@ -1,7 +1,7 @@
 import { getUsername, getToken } from "../utils/auth.js";
 import { getDashboardData } from "../api/dashboardApi.js";
 import { getTransactions, getRecentTransactions } from "../api/transactionApi.js";
-import { getCategories } from "../api/categoryApi.js";
+import { getCategories, getSetupStatus, setupCategories } from "../api/categoryApi.js";
 import { getChartData } from "../api/dashboardApi.js";
 
 
@@ -43,7 +43,10 @@ window.openSetBudgets = function () {
 async function loadCategories() {
     const token = getToken();
     const res = await getCategories(token);
-
+    if (!res.ok) {
+        console.error(await res.text());
+        return;
+    }
     const data = await res.json();
 
       let selectId;
@@ -95,7 +98,8 @@ window.filterTransactionsByCategory = function (categoryId) {
     loadTable(categoryId);
 };
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {   
+    await checkSetup();
     loadUser();
     loadDashboard();
     loadRecent();
@@ -332,4 +336,110 @@ window.submitBudgetLimit = async function () {
     loadCategories();
     loadChart();
     bootstrap.Modal.getInstance(document.getElementById('BudgetModal')).hide();
+};
+
+
+// ---------- SETUP ----------
+async function checkSetup() {
+    const token = getToken();
+    const res = await getSetupStatus(token);
+    if (!res.ok) return;
+
+    const isDone = await res.json();
+
+    if (!isDone) {
+        await loadDefaultCategoriesForSetup();
+        new bootstrap.Modal(document.getElementById('SetupModal')).show();
+    }
+}
+
+async function loadDefaultCategoriesForSetup() {
+    const token = getToken();
+    const res = await fetch("https://localhost:7095/api/categories/defaults", {
+    headers: {
+        Authorization: "Bearer " + token
+    }
+});
+    if (!res.ok) return;
+    const data = await res.json();
+
+    const container = document.getElementById("setup-categories");
+    container.innerHTML = "";
+
+    const defaults = data.filter(c => c.userId === null);
+
+    defaults.forEach(c => {
+        const div = document.createElement("div");
+
+        div.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div>
+                    <input type="checkbox" value="${c.id}" />
+                    ${c.name}
+                </div>
+                <input type="number" class="form-control w-25" data-id="${c.id}" placeholder="Budget" />
+            </div>
+        `;
+
+        container.appendChild(div);
+    });
+}
+
+window.submitSetup = async function () {
+    const token = getToken();
+
+    const selected = [];
+    const custom = [];
+
+    document.querySelectorAll("#setup-categories input[type=checkbox]").forEach(cb => {
+        if (cb.checked) selected.push(parseInt(cb.value));
+    });
+
+    document.querySelectorAll(".custom-category").forEach(row => {
+        const name = row.querySelector(".name").value;
+        const amount = parseFloat(row.querySelector(".amount").value);
+        const isIncome = row.querySelector(".type").value === "income";
+
+        if (name) {
+            custom.push({
+                name,
+                budgetLimit: amount || 0,
+                isIncome
+            });
+        }
+    });
+
+    const res = await setupCategories(token, {
+        defaultCategoryIds: selected,
+        customCategories: custom
+    });
+
+    if (!res.ok) {
+        alert("Setup failed");
+        return;
+    }
+
+    bootstrap.Modal.getInstance(document.getElementById('SetupModal')).hide();
+
+    loadCategories();
+    loadDashboard();
+    loadChart();
+};
+
+window.addCustomCategory = function () {
+    const container = document.getElementById("custom-categories");
+
+    const div = document.createElement("div");
+    div.classList.add("custom-category", "mb-2");
+
+    div.innerHTML = `
+        <input class="form-control mb-1 name" placeholder="Name" />
+        <input type="number" class="form-control mb-1 amount" placeholder="Budget" />
+        <select class="form-control type">
+            <option value="expense">Expense</option>
+            <option value="income">Income</option>
+        </select>
+    `;
+
+    container.appendChild(div);
 };

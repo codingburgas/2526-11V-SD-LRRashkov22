@@ -1,8 +1,9 @@
-﻿using Personal_Finance_Tracker.Models.CategoryDto;
-using Personal_Finance_Tracker.Data;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Personal_Finance_Tracker.Data;
+using Personal_Finance_Tracker.Models.CategoryDto;
 using Personal_Finance_Tracker.Models.Entities;
+using System.Threading.Tasks;
 namespace Personal_Finance_Tracker.Services.CategoryService;
 
 public class CategoryService : ICategoryService
@@ -13,17 +14,27 @@ public class CategoryService : ICategoryService
     {
         this.context = context;
     }
-    //public async Task<(List<Category> cat, string? error)> GetChartCategory(int userId) { 
-    
-    //}
-    public async Task<(List<Category> cat, string? error)> GetCategory()
-    {
-        var categories = await context.Categories.ToListAsync();
 
+    public async Task<(List<Category> cat, string? error)> GetCategory(int userId)
+    {
+        var categories = await context.Categories
+        //.Where(c => c.UserId == userId || c.UserId == null)
+        .Where(c => c.UserId == userId)
+        .ToListAsync();
+        await context.Categories.ToListAsync();
+        Console.WriteLine($"Categories count: {categories.Count}");
         if (!categories.Any())
-            return (new List<Category>(), "No categories found");
+            return (new List<Category>(), null);
 
         return (categories, null);
+    }
+    public async Task<List<Category>> GetDefaultCategories()
+    {
+        var categories = await context.Categories
+            .Where(c => c.UserId == null)
+            .ToListAsync();
+
+        return categories;
     }
     public async Task<(Category? cat, string? error)> CreateCategoryAdminOnly(CreateCategoryDto request)
     {
@@ -79,5 +90,59 @@ public class CategoryService : ICategoryService
         context.Categories.Remove(category);
         await context.SaveChangesAsync();
         return (null, null);
+    }
+    //-----------------------------------------------------------------------------------------------------------------
+    public async Task<(bool success, string? error)> SetupUserCategories(int userId, CategorySetupDto request)
+    {
+        var user = await context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+
+        if (user == null)
+            return (false, "User not found");
+
+        if (user.HasCompletedCategorySetup)
+            return (false, "Already completed");
+
+        // 🔥 1. взимаме default категории
+        var defaultCategories = await context.Categories
+            .Where(c => c.UserId == null && request.DefaultCategoryIds.Contains(c.Id))
+            .ToListAsync();
+
+        // 🔥 2. копираме ги към user
+        foreach (var c in defaultCategories)
+        {
+            context.Categories.Add(new Category
+            {
+                Name = c.Name,
+                IsIncome = c.IsIncome,
+                BudgetLimit = c.BudgetLimit, // може и 0 ако искаш
+                UserId = userId
+            });
+        }
+
+        // 🔥 3. custom категории
+        foreach (var custom in request.CustomCategories)
+        {
+            context.Categories.Add(new Category
+            {
+                Name = custom.Name,
+                IsIncome = custom.IsIncome,
+                BudgetLimit = custom.BudgetLimit,
+                UserId = userId
+            });
+        }
+
+        // 🔥 4. маркираме user като setup-нат
+        user.HasCompletedCategorySetup = true;
+
+        await context.SaveChangesAsync();
+
+        return (true, null);
+    }
+    public async Task<bool> HasCompletedSetup(int userId)
+    {
+        return await context.Users
+            .Where(u => u.Id == userId)
+            .Select(u => u.HasCompletedCategorySetup)
+            .FirstOrDefaultAsync();
     }
 }

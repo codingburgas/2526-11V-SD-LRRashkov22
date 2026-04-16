@@ -22,7 +22,7 @@ public class AnalyticsService : IAnalyticsService
         Console.WriteLine($"User categories: {userCategories.Count}");
 
         var now = DateTime.Now;
-        var categories = await context.Categories.Where(c => c.UserId == userId || c.UserId == null && !c.IsIncome).ToListAsync();
+        var categories = await context.Categories.Where(c => c.UserId == userId && !c.IsIncome).ToListAsync();
         var transactions = await context.Transactions
             .Where(t => t.UserId == userId && !t.IsIncome && t.Date.Month == now.Month &&
              t.Date.Year == now.Year)
@@ -52,7 +52,7 @@ public class AnalyticsService : IAnalyticsService
         Console.WriteLine($"User categories: {userCategories.Count}");
 
         var now = DateTime.Now;
-        var categories = await context.Categories.Where(c => c.UserId == userId || c.UserId == null && c.IsIncome).ToListAsync();
+        var categories = await context.Categories.Where(c => c.UserId == userId && c.IsIncome).ToListAsync();
         var transactions = await context.Transactions
             .Where(t => t.UserId == userId && t.IsIncome && t.Date.Month == now.Month &&
              t.Date.Year == now.Year)
