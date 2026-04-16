@@ -9,6 +9,7 @@ namespace Personal_Finance_Tracker.Services.CategoryService;
         Task<(List<Category> cat, string? error)> GetCategory();
         Task<(Category? cat, string? error)> UpdateCategoryAdminOnly(CategoryDto request);
         Task<(Category? cat, string? error)> DeleteCategoryAdminOnly(CategoryDto request);
+        Task<(Category? cat, string? error)> AddCategoryBudgetByUser(int userId, SetBudgetDto request);
        // Task<(List<Category> cat, string? error)> GetChartCategory(int userId);
 
     }

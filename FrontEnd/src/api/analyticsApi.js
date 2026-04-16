@@ -9,3 +9,13 @@ export async function getBudgetData(token) {
         }
     });
 }
+
+export async function getTargetData(token) {
+    return fetch(`${BASE_URL}/target`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        }
+    });
+}

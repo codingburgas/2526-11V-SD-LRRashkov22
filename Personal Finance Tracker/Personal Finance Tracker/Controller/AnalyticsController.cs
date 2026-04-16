@@ -22,6 +22,14 @@ namespace Personal_Finance_Tracker.Controller
             var result = await analyticsService.GetBudgetByUser(userId);
             return Ok(result);
         }
+        [Authorize]
+        [HttpGet("target")]
+        public async Task<ActionResult> GetTargetInformation()
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var result = await analyticsService.GetTargetByUser(userId);
+            return Ok(result);
+        }
 
     }
 }

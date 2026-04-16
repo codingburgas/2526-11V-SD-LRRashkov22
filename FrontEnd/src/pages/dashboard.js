@@ -9,6 +9,7 @@ let isIncome = true;
 let chartInstance;
 let currentDays = 7;
 let currentMode = "daily";
+let currentModal = null;
 window.changeRange = function (days) {
     currentDays = days;
     loadChart();
@@ -20,6 +21,7 @@ window.setMode = function (mode, days) {
 };
 window.openDeposit = function () {
     isIncome = true;
+    currentModal = "transaction";
     loadCategories();
     document.getElementById("modal-title").innerText = "Deposit";
     new bootstrap.Modal(document.getElementById('transactionModal')).show();
@@ -27,9 +29,16 @@ window.openDeposit = function () {
 
 window.openWithdraw = function () {
     isIncome = false;
+    currentModal = "transaction";
     loadCategories();
     document.getElementById("modal-title").innerText = "Withdraw";
     new bootstrap.Modal(document.getElementById('transactionModal')).show();
+};
+window.openSetBudgets = function () {
+    currentModal = "budget";
+    loadCategories();
+    document.getElementById("modal-title").innerText = "Set Budget";
+    new bootstrap.Modal(document.getElementById('BudgetModal')).show();
 };
 async function loadCategories() {
     const token = getToken();
@@ -37,9 +46,21 @@ async function loadCategories() {
 
     const data = await res.json();
 
-    const select = document.getElementById("category");
+      let selectId;
+
+    if (currentModal === "transaction") {
+        selectId = "category";
+    } else if (currentModal === "budget") {
+        selectId = "budgetLimit-category";
+    } else {
+        return;
+    }
+
+    const select = document.getElementById(selectId);
     select.innerHTML = "";
-    const filtered = data.filter(c => c.isIncome === isIncome);
+    const filtered = currentModal === "budget"
+    ? data
+    :  data.filter(c => c.isIncome === isIncome);
     filtered.forEach(c => {
         const option = document.createElement("option");
         option.value = c.id;
@@ -95,7 +116,6 @@ window.submitTransaction = async function () {
         return;
     }
 
-    // Convert date from input format (YYYY-MM-DD) to ISO string
     const date = new Date(dateValue + "T00:00:00").toISOString();
 
     const res = await fetch("https://localhost:7095/api/transaction", {
@@ -285,3 +305,31 @@ async function loadChart() {
         }
     });
 }
+
+
+import { PutBudgetLimit } from "../api/dashboardApi.js";
+window.submitBudgetLimit = async function () {
+    const token = getToken();
+
+    const amount = parseFloat(document.getElementById("limit-amount").value);
+    const categoryId = parseInt(document.getElementById("budgetLimit-category").value);
+    
+    if (!amount || !categoryId) {
+        alert("Fill all fields");
+        return;
+    }
+
+    const res = await PutBudgetLimit(token, { amount, categoryId });
+
+    if (!res.ok) {
+        alert("Error creating transaction");
+        return;
+    }
+
+    loadDashboard();
+    loadRecent();
+    loadTable();
+    loadCategories();
+    loadChart();
+    bootstrap.Modal.getInstance(document.getElementById('BudgetModal')).hide();
+};

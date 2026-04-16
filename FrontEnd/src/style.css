@@ -199,16 +199,114 @@ html, body {
   float: right;
 }
 
+
+/* .table-margin {
+  margin-bottom: 0;
+} */
+.table-container {
+  max-height: 20%;
+   display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow-y: auto;
+}
+.table-section{
+  flex: 1;
+  min-height: 0;
+  display: flex;
+
+
+}
 /* ----- */
 
 
 
+.analytics-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex: 1;
+  min-height: 0;
+}
 
+.analytics-row {
+  display: flex;
+  gap: 20px;
+  height: 50%;
+  min-height: 0;
+}
+
+.analytics-table {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.analytics-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.analytics-table thead {
+  background: #243f5f;
+  color: white;
+}
+
+.analytics-table th,
+.analytics-table td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.analytics-chart {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.analytics-chart canvas {
+  max-width: 100% !important;
+  max-height: 100% !important;
+}
+
+
+
+
+
+
+.progress-bar-container {
+  width: 100px;
+  height: 8px;
+  background: #e0e0e0;
+  border-radius: 10px;
+  display: inline-block;
+  margin-right: 8px;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 10px;
+}
+
+
+.progress-bar-container {
+  overflow: hidden;
+}
+
+.dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
 
     /* прави layout-а стабилен на различни монитори */
     @media (min-width: 1400px) {
       .main {
-        max-width: 1400px;
+        max-width: 100%;
         margin: 0 auto;
       }
     }

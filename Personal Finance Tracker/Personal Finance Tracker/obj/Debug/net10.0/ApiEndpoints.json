@@ -10,6 +10,16 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "Personal_Finance_Tracker.Controller.AnalyticsController",
+    "Method": "GetTargetInformation",
+    "RelativePath": "api/Analytics/target",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "Personal_Finance_Tracker.Controller.AuthController",
     "Method": "AuthenticatedOnlyEndpoint",
     "RelativePath": "api/Auth",
@@ -178,6 +188,22 @@
     "IsController": true,
     "Order": 0,
     "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Personal_Finance_Tracker.Controller.DashboardController",
+    "Method": "AddBudgetLimitByUserAsync",
+    "RelativePath": "api/Dashboard/budget",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "req",
+        "Type": "Personal_Finance_Tracker.Models.CategoryDto.SetBudgetDto",
+        "IsRequired": true
+      }
+    ],
     "ReturnTypes": []
   },
   {

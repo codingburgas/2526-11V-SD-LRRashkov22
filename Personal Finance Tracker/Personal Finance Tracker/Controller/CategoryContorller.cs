@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Personal_Finance_Tracker.Services.CategoryService;
-using Microsoft.AspNetCore.Authorization;
 using Personal_Finance_Tracker.Models.CategoryDto;
+using Personal_Finance_Tracker.Models.Entities;
+using Personal_Finance_Tracker.Services.CategoryService;
 namespace Personal_Finance_Tracker.Controller
 {
     [Route("api/categories")]
@@ -59,6 +60,7 @@ namespace Personal_Finance_Tracker.Controller
 
             return Ok("Deleted");
         }
+
 
     }
 }

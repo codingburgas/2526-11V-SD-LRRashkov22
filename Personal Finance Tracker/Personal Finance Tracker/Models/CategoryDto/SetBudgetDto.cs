@@ -1,0 +1,8 @@
+﻿namespace Personal_Finance_Tracker.Models.CategoryDto
+{
+    public class SetBudgetDto
+    {
+        public int CategoryId { get; set; }
+        public decimal Amount { get; set; }
+    }
+}

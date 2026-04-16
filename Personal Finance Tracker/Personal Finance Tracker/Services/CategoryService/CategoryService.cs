@@ -43,6 +43,16 @@ public class CategoryService : ICategoryService
         return (category, null);
     }
 
+    public async Task<(Category? cat, string? error)> AddCategoryBudgetByUser(int userId, SetBudgetDto request)
+    {
+        if (request.Amount < 0)return (null, "Budget limit cannot be negative");
+        var category = await context.Categories.FirstOrDefaultAsync(c => c.Id == request.CategoryId);
+        if (category == null) return (null, "Category not found");
+        category.BudgetLimit = request.Amount;
+        await context.SaveChangesAsync();
+        return (category, null);
+    }
+
     public async Task<(Category? cat, string? error)> UpdateCategoryAdminOnly(CategoryDto request)
     {
             if (request.BudgetLimit < 0) return (null, "Budget limit cannot be negative");
