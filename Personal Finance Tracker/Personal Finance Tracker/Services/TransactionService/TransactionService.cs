@@ -35,6 +35,7 @@ namespace Personal_Finance_Tracker.Services.TransactionService;
             Date = request.TransactionDate ?? DateTime.UtcNow,
             IsIncome = request.IsIncome,
             CategoryId = request.CategoryId,
+            AccountId = request.AccountId,
             UserId = userId
         };
 
@@ -49,7 +50,8 @@ namespace Personal_Finance_Tracker.Services.TransactionService;
             TransactionDate = transaction.Date,
             CategoryId = transaction.CategoryId,
             IsIncome = transaction.IsIncome,
-            CategoryName = category.Name
+            CategoryName = category.Name,
+            AccountId = transaction.AccountId
         };
 
         return (result, null);

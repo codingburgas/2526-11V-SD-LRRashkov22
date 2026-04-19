@@ -10,6 +10,7 @@ let chartInstance;
 let currentDays = 7;
 let currentMode = "daily";
 let currentModal = null;
+let isSetupMode = false;
 window.changeRange = function (days) {
     currentDays = days;
     loadChart();
@@ -99,7 +100,9 @@ window.filterTransactionsByCategory = function (categoryId) {
 };
 
 document.addEventListener("DOMContentLoaded", async () => {   
-    await checkSetup();
+
+
+  await checkSetup();
     loadUser();
     loadDashboard();
     loadRecent();
@@ -342,15 +345,24 @@ window.submitBudgetLimit = async function () {
 // ---------- SETUP ----------
 async function checkSetup() {
     const token = getToken();
+  //  if (sessionStorage.getItem("setupShown")) return;
     const res = await getSetupStatus(token);
     if (!res.ok) return;
 
     const isDone = await res.json();
 
     if (!isDone) {
+        isSetupMode = true;
         await loadDefaultCategoriesForSetup();
-        new bootstrap.Modal(document.getElementById('SetupModal')).show();
+        //new bootstrap.Modal(document.getElementById('SetupModal')).show();
+
+        //-------------------------------------------------------------------------
+         const modal = new bootstrap.Modal(document.getElementById('SetupModal'));
+    modal.show();
+
+  //  sessionStorage.setItem("setupShown", "true");
     }
+    //sessionStorage.setItem("setupShown", "true");
 }
 
 async function loadDefaultCategoriesForSetup() {
@@ -366,7 +378,7 @@ async function loadDefaultCategoriesForSetup() {
     const container = document.getElementById("setup-categories");
     container.innerHTML = "";
 
-    const defaults = data.filter(c => c.userId === null);
+    const defaults = data;
 
     defaults.forEach(c => {
         const div = document.createElement("div");
@@ -424,6 +436,7 @@ window.submitSetup = async function () {
     loadCategories();
     loadDashboard();
     loadChart();
+    sessionStorage.removeItem("setupShown");
 };
 
 window.addCustomCategory = function () {
@@ -444,7 +457,13 @@ window.addCustomCategory = function () {
     container.appendChild(div);
 };
 
-
+window.handleSave = function () {
+    if (isSetupMode) {
+        submitSetup();
+    } else {
+        saveCategoryChanges();
+    }
+};
 
 //----------------------------------------------------------------
 window.openCategoryManager = async function () {
@@ -455,10 +474,10 @@ window.openCategoryManager = async function () {
     if (!res.ok) return;
 
     const data = await res.json();
+    isSetupMode = false;
 
     const container = document.getElementById("setup-categories");
     container.innerHTML = "";
-
     // 🔥 показваме ВСИЧКИ user категории (editable)
     data.forEach(c => {
         const div = document.createElement("div");

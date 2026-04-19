@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Personal_Finance_Tracker.Data;
-using Personal_Finance_Tracker.Models.CardDto;
 using Personal_Finance_Tracker.Models.DashboardChartDto;
 using System.Linq;
 

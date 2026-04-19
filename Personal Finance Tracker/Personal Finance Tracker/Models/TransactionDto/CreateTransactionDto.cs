@@ -1,4 +1,6 @@
-﻿namespace Personal_Finance_Tracker.Models.TransactionDto
+﻿using Personal_Finance_Tracker.Models.Entities;
+
+namespace Personal_Finance_Tracker.Models.TransactionDto
 {
     public class CreateTransactionDto
     {
@@ -7,5 +9,6 @@
         public int CategoryId { get; set; }
         public bool IsIncome { get; set; }
         public DateTime? TransactionDate { get; set; }
+        public int AccountId { get; set; }
     }
 }

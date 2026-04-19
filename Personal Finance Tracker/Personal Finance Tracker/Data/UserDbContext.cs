@@ -7,7 +7,7 @@ namespace Personal_Finance_Tracker.Data;
         public DbSet<User> Users { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
-    public DbSet<Card> Cards { get; set; }
+        public DbSet<Account> Accounts { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -20,16 +20,16 @@ namespace Personal_Finance_Tracker.Data;
                 .HasForeignKey(c => c.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<Card>()
+        modelBuilder.Entity<Account>()
                 .HasOne(c => c.User)
-                .WithMany(u => u.Cards)
+                .WithMany(u => u.Accounts)
                 .HasForeignKey(c => c.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<Transaction>()
-                .HasOne(t => t.Card)
+                .HasOne(t => t.Account)
                 .WithMany(c => c.Transactions)
-                .HasForeignKey(t => t.CardId);
+                .HasForeignKey(t => t.AccountId);
 
         modelBuilder.Entity<Transaction>()
                 .HasOne(t => t.User)

@@ -1,4 +1,4 @@
-﻿using Personal_Finance_Tracker.Models.CardDto;
+﻿
 using Personal_Finance_Tracker.Models.DashboardChartDto;
 
 namespace Personal_Finance_Tracker.Services.DashboardService

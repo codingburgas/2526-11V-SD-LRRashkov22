@@ -262,6 +262,82 @@
         }
       }
     },
+    "/api/categories/setup-status": {
+      "get": {
+        "tags": [
+          "CategoryContorller"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/categories/default": {
+      "post": {
+        "tags": [
+          "CategoryContorller"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCategoryAdminDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCategoryAdminDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCategoryAdminDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/categories/setup": {
+      "post": {
+        "tags": [
+          "CategoryContorller"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategorySetupDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategorySetupDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategorySetupDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/categories/{id}": {
       "put": {
         "tags": [
@@ -327,50 +403,6 @@
             }
           }
         ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/categories/setup-status": {
-      "get": {
-        "tags": [
-          "CategoryContorller"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/categories/setup": {
-      "post": {
-        "tags": [
-          "CategoryContorller"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CategorySetupDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CategorySetupDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/CategorySetupDto"
-              }
-            }
-          },
-          "required": true
-        },
         "responses": {
           "200": {
             "description": "OK"
@@ -514,33 +546,18 @@
   },
   "components": {
     "schemas": {
-      "Card": {
+      "Account": {
         "required": [
-          "cardNumber",
-          "cardHolderName",
-          "expiryDate",
-          "cvv"
+          "name",
+          "accountType"
         ],
         "type": "object",
         "properties": {
-          "cardNumber": {
-            "maxLength": 16,
-            "minLength": 16,
+          "name": {
             "type": "string"
           },
-          "cardHolderName": {
-            "maxLength": 20,
-            "minLength": 0,
-            "type": "string"
-          },
-          "expiryDate": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "cvv": {
-            "maxLength": 3,
-            "minLength": 3,
-            "type": "string"
+          "accountType": {
+            "$ref": "#/components/schemas/TypeAccount"
           },
           "balance": {
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
@@ -695,6 +712,25 @@
           }
         }
       },
+      "CreateCategoryAdminDto": {
+        "type": "object",
+        "properties": {
+          "isIncome": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "budgetLimit": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
+          }
+        }
+      },
       "CreateCategoryDto": {
         "type": "object",
         "properties": {
@@ -753,6 +789,14 @@
               "string"
             ],
             "format": "date-time"
+          },
+          "accountId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
           }
         }
       },
@@ -808,6 +852,9 @@
         }
       },
       "Transaction": { },
+      "TypeAccount": {
+        "type": "integer"
+      },
       "User": {
         "required": [
           "username",
@@ -836,7 +883,26 @@
               "string"
             ]
           },
+          "failedAttempts": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "hasCompletedCategorySetup": {
+            "type": "boolean"
+          },
           "refreshTokenExpiryTime": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "lockEnd": {
             "type": [
               "null",
               "string"
@@ -855,30 +921,11 @@
               "$ref": "#/components/schemas/Transaction"
             }
           },
-          "lockEnd": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "date-time"
-          },
-          "failedAttempts": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "null",
-              "integer",
-              "string"
-            ],
-            "format": "int32"
-          },
-          "cards": {
+          "accounts": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Card"
+              "$ref": "#/components/schemas/Account"
             }
-          },
-          "hasCompletedCategorySetup": {
-            "type": "boolean"
           },
           "id": {
             "pattern": "^-?(?:0|[1-9]\\d*)$",

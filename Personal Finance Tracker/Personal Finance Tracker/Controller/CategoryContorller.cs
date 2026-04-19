@@ -29,9 +29,9 @@ namespace Personal_Finance_Tracker.Controller
             return Ok(cat);
         }
 
-        [HttpGet("defaults")]
         [Authorize]
-        public async Task<ActionResult> GetDefaultCategories()
+        [HttpGet("defaults")]
+        public async Task<ActionResult> GetDefaultCategoriess()
         {
             var categories = await category.GetDefaultCategories();
 
@@ -39,16 +39,58 @@ namespace Personal_Finance_Tracker.Controller
         }
 
         [Authorize]
-        [HttpPost]
-        public async Task<ActionResult> CreateCategory(CreateCategoryDto request)
+        [HttpGet("setup-status")]
+        public async Task<ActionResult> GetSetupStatus()
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-            var (cat, error) = await category.CreateCategoryAdminOnly(request, userId);
-            if (error != null) return BadRequest(error);
+
+            var done = await category.HasCompletedSetup(userId);
+
+            return Ok(done);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost("default")]
+        public async Task<ActionResult> CreateDefaultCategoryAdmin(CreateCategoryAdminDto request)
+        {
+            var (cat, error) = await category.CreateDefaultCategory(request);
+
+            if (error != null)
+                return BadRequest(error);
+
             return Ok(cat);
         }
-        [HttpPut("{id}")]
+
         [Authorize]
+        [HttpPost]
+        public async Task<ActionResult> CreateCategoryUser(CreateCategoryDto request)
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            var (cat, error) = await category.CreateUserCategory(request, userId);
+
+            if (error != null)
+                return BadRequest(error);
+
+            return Ok(cat);
+        }
+
+        [Authorize]
+        [HttpPost("setup")]
+        public async Task<ActionResult> SetupCategories([FromBody] CategorySetupDto request)
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            var (success, error) = await category.SetupUserCategories(userId, request);
+
+            if (!success)
+                return BadRequest(error);
+
+            return Ok();
+        }
+
+        [Authorize]
+        [HttpPut("{id}")]
         public async Task<IActionResult> UpdateCategory(int id,CategoryDto request)
         {
             request.Id = id;
@@ -60,8 +102,9 @@ namespace Personal_Finance_Tracker.Controller
 
             return Ok(cat);
         }
-        [HttpDelete("{id}")]
+
         [Authorize]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCategory(int id)
         {
             var dto = new CategoryDto { Id = id };
@@ -72,33 +115,6 @@ namespace Personal_Finance_Tracker.Controller
                 return BadRequest(error);
 
             return Ok("Deleted");
-        }
-
-        //-----------------------------------------------------------------------------------
-
-        [HttpGet("setup-status")]
-        [Authorize]
-        public async Task<ActionResult> GetSetupStatus()
-        {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-
-            var done = await category.HasCompletedSetup(userId);
-
-            return Ok(done);
-        }
-
-        [HttpPost("setup")]
-        [Authorize]
-        public async Task<ActionResult> SetupCategories([FromBody] CategorySetupDto request)
-        {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-
-            var (success, error) = await category.SetupUserCategories(userId, request);
-
-            if (!success)
-                return BadRequest(error);
-
-            return Ok();
         }
 
     }

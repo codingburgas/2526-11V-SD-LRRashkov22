@@ -19,7 +19,7 @@ public class CategoryService : ICategoryService
     {
         var categories = await context.Categories
         //.Where(c => c.UserId == userId || c.UserId == null)
-        .Where(c => c.UserId == userId)
+        .Where(c => c.UserId == userId )
         .ToListAsync();
         await context.Categories.ToListAsync();
         Console.WriteLine($"Categories count: {categories.Count}");
@@ -36,10 +36,11 @@ public class CategoryService : ICategoryService
 
         return categories;
     }
-    public async Task<(Category? cat, string? error)> CreateCategoryAdminOnly(CreateCategoryDto request, int userId)
+
+    public async Task<(Category? cat, string? error)> CreateUserCategory(CreateCategoryDto request, int userId)
     {
         if (string.IsNullOrEmpty(request.Name)) return (null, "Category name cannot be null");
-        if (await context.Categories.AnyAsync(cat => cat.Name == request.Name && cat.UserId == request.userId)) return (null, "Category name already exists");
+        if (await context.Categories.AnyAsync(cat => cat.Name == request.Name && cat.UserId == userId)) return (null, "Category name already exists");
         if (request.BudgetLimit < 0) return (null, "Budget limit cannot be negative");
         var category = new Category
         {
@@ -47,6 +48,31 @@ public class CategoryService : ICategoryService
             BudgetLimit = request.BudgetLimit,
             IsIncome = request.IsIncome,
             UserId = userId
+        };
+
+        context.Categories.Add(category);
+        await context.SaveChangesAsync();
+
+        return (category, null);
+    }
+
+    public async Task<(Category? cat, string? error)> CreateDefaultCategory(CreateCategoryAdminDto request)
+    {
+        if (string.IsNullOrEmpty(request.Name))
+            return (null, "Category name cannot be null");
+
+        var exists = await context.Categories
+            .AnyAsync(c => c.Name == request.Name && c.UserId == null);
+
+        if (exists)
+            return (null, "Default category already exists");
+
+        var category = new Category
+        {
+            Name = request.Name,
+            BudgetLimit = request.BudgetLimit,
+            IsIncome = request.IsIncome,
+            UserId = null
         };
 
         context.Categories.Add(category);
@@ -132,10 +158,10 @@ public class CategoryService : ICategoryService
             });
         }
 
-        // 🔥 4. маркираме user като setup-нат
+       
         user.HasCompletedCategorySetup = true;
 
-        await context.SaveChangesAsync();
+       await context.SaveChangesAsync();
 
         return (true, null);
     }

@@ -16,13 +16,13 @@ public class User : BaseEntity
     [Required]
     public string Role { get; set; } = string.Empty;
     public string? RefreshToken { get; set; }
+    public int? FailedAttempts { get; set; } = 0;
+    public bool HasCompletedCategorySetup { get; set; } = false;
     public DateTime? RefreshTokenExpiryTime { get; set; }
+    public DateTime? LockEnd { get; set; }
     public ICollection<Category> Categories { get; set; } = new List<Category>();
     public ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
-    public DateTime? LockEnd { get; set; }
-    public int? FailedAttempts { get; set; } = 0;
-    public ICollection<Card> Cards { get; set; } = new List<Card>();
-    public bool HasCompletedCategorySetup { get; set; } = false;
+    public ICollection<Account> Accounts { get; set; } = new List<Account>();
 
 }
 

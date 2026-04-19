@@ -129,7 +129,7 @@
   },
   {
     "ContainingType": "Personal_Finance_Tracker.Controller.CategoryContorller",
-    "Method": "CreateCategory",
+    "Method": "CreateCategoryUser",
     "RelativePath": "api/categories",
     "HttpMethod": "POST",
     "IsController": true,
@@ -182,7 +182,23 @@
   },
   {
     "ContainingType": "Personal_Finance_Tracker.Controller.CategoryContorller",
-    "Method": "GetDefaultCategories",
+    "Method": "CreateDefaultCategoryAdmin",
+    "RelativePath": "api/categories/default",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Personal_Finance_Tracker.Models.CategoryDto.CreateCategoryAdminDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Personal_Finance_Tracker.Controller.CategoryContorller",
+    "Method": "GetDefaultCategoriess",
     "RelativePath": "api/categories/defaults",
     "HttpMethod": "GET",
     "IsController": true,

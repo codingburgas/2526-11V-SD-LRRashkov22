@@ -12,8 +12,8 @@ using Personal_Finance_Tracker.Data;
 namespace Personal_Finance_Tracker.Migrations
 {
     [DbContext(typeof(UserDbContext))]
-    [Migration("20260416203300_Initial")]
-    partial class Initial
+    [Migration("20260419085912_AddMultipleAccountsPerUser")]
+    partial class AddMultipleAccountsPerUser
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,7 +25,7 @@ namespace Personal_Finance_Tracker.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Personal_Finance_Tracker.Models.Entities.Card", b =>
+            modelBuilder.Entity("Personal_Finance_Tracker.Models.Entities.Account", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -33,29 +33,18 @@ namespace Personal_Finance_Tracker.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("AccountType")
+                        .HasColumnType("integer");
+
                     b.Property<decimal>("Balance")
                         .HasColumnType("numeric");
-
-                    b.Property<string>("CVV")
-                        .IsRequired()
-                        .HasMaxLength(3)
-                        .HasColumnType("character varying(3)");
-
-                    b.Property<string>("CardHolderName")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
-
-                    b.Property<string>("CardNumber")
-                        .IsRequired()
-                        .HasMaxLength(16)
-                        .HasColumnType("character varying(16)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime>("ExpiryDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
@@ -64,7 +53,7 @@ namespace Personal_Finance_Tracker.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Cards");
+                    b.ToTable("Accounts");
                 });
 
             modelBuilder.Entity("Personal_Finance_Tracker.Models.Entities.Category", b =>
@@ -106,11 +95,11 @@ namespace Personal_Finance_Tracker.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("AccountId")
+                        .HasColumnType("integer");
+
                     b.Property<decimal>("Amount")
                         .HasColumnType("numeric");
-
-                    b.Property<int?>("CardId")
-                        .HasColumnType("integer");
 
                     b.Property<int>("CategoryId")
                         .HasColumnType("integer");
@@ -133,7 +122,7 @@ namespace Personal_Finance_Tracker.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CardId");
+                    b.HasIndex("AccountId");
 
                     b.HasIndex("CategoryId");
 
@@ -185,10 +174,10 @@ namespace Personal_Finance_Tracker.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Personal_Finance_Tracker.Models.Entities.Card", b =>
+            modelBuilder.Entity("Personal_Finance_Tracker.Models.Entities.Account", b =>
                 {
                     b.HasOne("Personal_Finance_Tracker.Models.Entities.User", "User")
-                        .WithMany("Cards")
+                        .WithMany("Accounts")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -208,9 +197,11 @@ namespace Personal_Finance_Tracker.Migrations
 
             modelBuilder.Entity("Personal_Finance_Tracker.Models.Entities.Transaction", b =>
                 {
-                    b.HasOne("Personal_Finance_Tracker.Models.Entities.Card", "Card")
+                    b.HasOne("Personal_Finance_Tracker.Models.Entities.Account", "Account")
                         .WithMany("Transactions")
-                        .HasForeignKey("CardId");
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Personal_Finance_Tracker.Models.Entities.Category", "Category")
                         .WithMany("Transactions")
@@ -224,14 +215,14 @@ namespace Personal_Finance_Tracker.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Card");
+                    b.Navigation("Account");
 
                     b.Navigation("Category");
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Personal_Finance_Tracker.Models.Entities.Card", b =>
+            modelBuilder.Entity("Personal_Finance_Tracker.Models.Entities.Account", b =>
                 {
                     b.Navigation("Transactions");
                 });
@@ -243,7 +234,7 @@ namespace Personal_Finance_Tracker.Migrations
 
             modelBuilder.Entity("Personal_Finance_Tracker.Models.Entities.User", b =>
                 {
-                    b.Navigation("Cards");
+                    b.Navigation("Accounts");
 
                     b.Navigation("Categories");
 
