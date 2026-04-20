@@ -37,47 +37,50 @@
     </button>
   </div>
 
-  <div class="content">
 
-    <!-- LEFT -->
-    <div class="left">
 
-      <!-- TABLE -->
-      <div class="card p-3 mb-3">
-        <h6>Accounts</h6>
+<div class="main-acc">
+<div class="accounts-grid">
 
+  <!-- ROW 1 -->
+  <div class="accounts-row">
+
+    <!-- TABLE -->
+    <div class="card accounts-table">
+      <h6 class="mx-3">Accounts</h6>
+      <div class="table-container">
         <table class="table">
           <thead class="table-dark">
             <tr>
               <th>Name</th>
               <th>Balance</th>
               <th>Type</th>
+              <th></th>
             </tr>
           </thead>
-          <tbody id="accounts-table"></tbody>
+          <tbody id="accounts-table" class="hover-effect-tables"></tbody>
         </table>
       </div>
-
-      <!-- EMPTY CHART -->
-      <div class="card p-3">
-          <h6 id="account-chart-title">Account Overview</h6>
-          <canvas id="accountLineChart" height="200"></canvas>
-      </div>
-
     </div>
 
-    <!-- RIGHT -->
-    <div class="right">
-      <div class="card p-3">
-        <h6>Account balances</h6>
-        <canvas id="accountsPieChart" height="200"></canvas>
-      </div>
+    <!-- PIE -->
+    <div class="card accounts-chart display-flex flex-column align-items-center">
+      <h6>Account balances</h6>
+      <canvas id="accountsPieChart"></canvas>
     </div>
 
   </div>
-</div>
-</div>
 
+  <!-- ROW 2 -->
+  <div class="card accounts-line">
+    <h6 id="account-chart-title" class="mx-3">Overview</h6>
+    <canvas id="accountLineChart"></canvas>
+  </div>
+
+</div>
+</div>
+</div>
+</div>
 <!-- Account Modal -->
 <div class="modal fade" id="accountModal">
   <div class="modal-dialog">

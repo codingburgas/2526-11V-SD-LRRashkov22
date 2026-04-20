@@ -58,16 +58,6 @@
     "ReturnTypes": []
   },
   {
-    "ContainingType": "Personal_Finance_Tracker.Controller.AccountController",
-    "Method": "SyncBalances",
-    "RelativePath": "api/account/sync-balances",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
-    "ReturnTypes": []
-  },
-  {
     "ContainingType": "Personal_Finance_Tracker.Controller.AnalyticsController",
     "Method": "GetBudgetInformation",
     "RelativePath": "api/Analytics/budget",

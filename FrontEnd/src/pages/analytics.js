@@ -28,12 +28,6 @@ function normalizePercent(p) {
 }
 function generateColors(count) {
   const colors = [];
-//   for (let i = 0; i < count; i++) {
-//     const hue = (i * 360) / count;
-//     colors.push(`hsl(${hue}, 65%, 60%)`);
-//   }
-//   return colors;
-
   for (let i = 0; i < count; i++) {
         const hue = (i * 360) / count;
         const lightness = 50 + (i % 2 === 0 ? 5 : -5);

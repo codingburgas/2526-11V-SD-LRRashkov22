@@ -14,11 +14,9 @@ namespace Personal_Finance_Tracker.Controller;
 public class AccountController : ControllerBase
 {
     private readonly IAccountService accountService;
-    private readonly UserDbContext context;
-    public AccountController(IAccountService accountService, UserDbContext context)
+    public AccountController(IAccountService accountService)
     {
         this.accountService = accountService;
-        this.context = context;
     }
     [Authorize]
     [HttpGet]
@@ -61,35 +59,4 @@ public class AccountController : ControllerBase
         return Ok(new { success });
     }
 
-
-
-
-
-
-    [HttpPost("sync-balances")]
-    public async Task<IActionResult> SyncBalances()
-    {
-        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-
-        var accounts = await context.Accounts
-            .Where(a => a.UserId == userId)
-            .ToListAsync();
-
-        foreach (var acc in accounts)
-        {
-            var income = await context.Transactions
-                .Where(t => t.AccountId == acc.Id && t.IsIncome)
-                .SumAsync(t => t.Amount);
-
-            var expense = await context.Transactions
-                .Where(t => t.AccountId == acc.Id && !t.IsIncome)
-                .SumAsync(t => t.Amount);
-
-            acc.Balance = income - expense;
-        }
-
-        await context.SaveChangesAsync();
-
-        return Ok("Synced");
-    }
 }

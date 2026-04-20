@@ -3,7 +3,7 @@ import { getToken } from "../utils/auth.js";
 let pieChart;
 let lineChart;
 let selectedAccountId = null;
-
+let editingRowId = null;
 function getAccountTypeName(type) {
     switch (type) {
         case 0: return "Credit Card";
@@ -59,7 +59,7 @@ function renderPieChart(accounts) {
 
     const labels = accounts.map(a => a.name);
     const data = accounts.map(a => a.balance);
-
+    
     if (pieChart) pieChart.destroy();
 
     pieChart = new Chart(ctx, {
@@ -67,10 +67,25 @@ function renderPieChart(accounts) {
         data: {
             labels: labels,
             datasets: [{
-                data: data
+                data: data,
+                    hoverOffset: 8,
+                    hoverBorderWidth: 1
             }]
+        },
+                options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+            },
+                        layout: {
+        padding: {
+            bottom: 30
+        }
+    }
         }
     });
+    return pieChart.data.datasets[0].backgroundColor;
 }
 
 async function loadAccountChart(accountId, accountName) {
@@ -111,7 +126,7 @@ function renderLineChart(labels, data, accountName) {
     const ctx = document.getElementById("accountLineChart");
 
     document.getElementById("account-chart-title").innerText =
-        `Account ${accountName} Overview`;
+        `${accountName} Overview`;
 
     if (lineChart) lineChart.destroy();
 
@@ -126,12 +141,50 @@ function renderLineChart(labels, data, accountName) {
             }]
         },
         options: {
-            plugins: {
-                legend: { display: false }
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+            },
+            layout: {
+        padding: {
+            bottom: 30
+        }
+    },
+    scales: {
+        y: {
+            ticks: {
+                precision: 0
             }
+        }
+    }
         }
     });
 }
+
+function attachHoverSync(tableId, chart) {
+    const rows = document.querySelectorAll(`#${tableId} tr`);
+
+    rows.forEach(row => {
+        row.addEventListener("mouseenter", () => {
+            if (editingRowId !== null) return;
+            const index = row.getAttribute("data-index");
+
+            chart.setActiveElements([{
+                datasetIndex: 0,
+                index: Number(index)
+            }]);
+
+            chart.update();
+        });
+
+        row.addEventListener("mouseleave", () => {
+            chart.setActiveElements([]);
+            chart.update();
+        });
+    });
+}
+
 async function loadAccounts() {
     const token = getToken();
 
@@ -144,21 +197,42 @@ async function loadAccounts() {
     if (!res.ok) return;
 
     const data = await res.json();
-
+    const colors = renderPieChart(data);
     const table = document.getElementById("accounts-table");
     table.innerHTML = "";
 
-    data.forEach(a => {
+    data.forEach((a, index) => {
         const tr = document.createElement("tr");
-
+         tr.setAttribute("data-index", index);
         tr.innerHTML = `
-            <td>${a.name}</td>
+            <td> 
+                <span style="
+            display:inline-block;
+            width:10px;
+            height:10px;
+            border-radius:50%;
+            background:${colors[index]};
+            margin-right:8px;
+        "></span>
+        ${a.name}</td>
             <td>${a.balance}</td>
             <td>${getAccountTypeName(a.accountType)}</td>
-        `;
+            <td class="text-end">
+                <button class="btn btn-sm btn-outline-primary me-1" onclick="startEditRow(this, ${a.id}, '${a.name}', ${a.accountType})">
+                    ✏️
+                </button>
 
+                <button class="btn btn-sm btn-outline-danger" onclick="deleteAccount(${a.id}, this)">
+                    ❌
+                </button>
+            </td>
+        `;
+        tr.querySelectorAll("button").forEach(btn => {
+            btn.addEventListener("click", e => e.stopPropagation());
+        });
         tr.style.cursor = "pointer";
         tr.onclick = () => {
+              if (editingRowId !== null) return;
             selectedAccountId = a.id;
              document.querySelectorAll("#accounts-table tr")
             .forEach(r => r.classList.remove("table-active"));
@@ -174,10 +248,114 @@ async function loadAccounts() {
     selectedAccountId = data[0].id;
     loadAccountChart(data[0].id, data[0].name);
 }
-    // 🔥 PIE
+
     renderPieChart(data);
+    attachHoverSync("accounts-table", pieChart);
 }
 
+window.startEditRow = function (btn, id, name, type) {
+
+    if (editingRowId !== null) return; // 🔥 само 1 edit
+
+    editingRowId = id;
+
+    const tr = btn.closest("tr");
+
+    tr.classList.add("table-warning");
+
+    const balance = tr.children[1].innerText; // 🔥 запазваме го
+
+    tr.onclick = null; // 🔥 махаме click → FIX chart reload
+
+    tr.innerHTML = `
+        <td>
+            <input class="form-control form-control-sm"
+                value="${name}"
+                id="edit-name-${id}" />
+        </td>
+
+        <td>${balance}</td>
+
+        <td>
+            <select class="form-control form-control-sm" id="edit-type-${id}">
+                <option value="0" ${type == 0 ? "selected" : ""}>Credit Card</option>
+                <option value="1" ${type == 1 ? "selected" : ""}>Debit Card</option>
+                <option value="2" ${type == 2 ? "selected" : ""}>Bank</option>
+                <option value="3" ${type == 3 ? "selected" : ""}>Investment</option>
+                <option value="4" ${type == 4 ? "selected" : ""}>Wallet</option>
+            </select>
+        </td>
+
+        <td class="text-end">
+            <button class="btn btn-sm btn-success me-1"
+                onclick="saveEdit(${id})">
+                💾
+            </button>
+
+            <button class="btn btn-sm btn-secondary"
+                onclick="cancelEdit()">
+                ❌
+            </button>
+        </td>
+    `;
+};
+window.saveEdit = async function (id) {
+    const token = getToken();
+
+    const name = document.getElementById(`edit-name-${id}`).value;
+    const type = parseInt(document.getElementById(`edit-type-${id}`).value);
+
+    const res = await fetch("https://localhost:7095/api/account", {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token
+        },
+        body: JSON.stringify({
+            accountId: id,
+            name,
+            accountType: type
+        })
+    });
+
+    if (!res.ok) {
+        alert("Update failed");
+        return;
+    }
+
+    editingRowId = null; // 🔥 reset
+    loadAccounts();
+};
+
+window.deleteAccount = async function (id, btn) {
+    const token = getToken();
+
+    if (!confirm("Delete this account?")) return;
+
+    const res = await fetch(`https://localhost:7095/api/account/${id}`, {
+        method: "DELETE",
+        headers: {
+            Authorization: "Bearer " + token
+        }
+    });
+
+    if (!res.ok) {
+        alert("Delete failed");
+        return;
+    }
+
+    // 🔥 махаме row-а от UI (без reload)
+    const tr = btn.closest("tr");
+    tr.remove();
+
+    // 🔥 reload chart + pie
+    loadAccounts();
+};
+
+window.cancelEdit = function () {
+    editingRowId = null;
+    loadAccounts(); // връща нормалния state
+};
 document.addEventListener("DOMContentLoaded", () => {
     loadAccounts();
 });

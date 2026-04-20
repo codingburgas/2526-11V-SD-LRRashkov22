@@ -302,6 +302,59 @@ html, body {
   border-radius: 50%;
   margin-right: 8px;
 }
+/* GRID */
+.accounts-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: calc(100vh - 140px);
+}
+
+.accounts-row {
+  display: flex;
+  gap: 16px;
+   height: 40vh;
+    min-height: 0;  
+}
+
+/* TABLE */
+.accounts-table {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+    overflow: hidden;
+}
+
+.table-container {
+  max-height: 250px;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+/* PIE */
+.accounts-chart {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* LINE */
+.accounts-line {
+  height: 38vh;
+  flex: 1;
+  min-height: 0;
+}
+
+/* IMPORTANT FOR CHARTS */
+.accounts-chart canvas,
+.accounts-line canvas {
+  width: 100% !important;
+}
+
+.hover-effect-tables tr:hover td {
+  background-color: #f1f3f5 !important;
+  cursor: pointer;
+}
 
     /* прави layout-а стабилен на различни монитори */
     @media (min-width: 1400px) {
