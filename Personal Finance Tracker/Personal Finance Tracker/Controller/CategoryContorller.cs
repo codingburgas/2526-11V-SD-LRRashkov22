@@ -93,9 +93,10 @@ namespace Personal_Finance_Tracker.Controller
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateCategory(int id,CategoryDto request)
         {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
             request.Id = id;
 
-            var (cat, error) = await category.UpdateCategoryAdminOnly(request);
+            var (cat, error) = await category.UpdateCategoryAdminOnly(request, userId);
 
             if (error != null)
                 return BadRequest(error);
@@ -107,9 +108,10 @@ namespace Personal_Finance_Tracker.Controller
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCategory(int id)
         {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
             var dto = new CategoryDto { Id = id };
 
-            var (cat, error) = await category.DeleteCategoryAdminOnly(dto);
+            var (cat, error) = await category.DeleteCategoryAdminOnly(dto, userId);
 
             if (error != null)
                 return BadRequest(error);

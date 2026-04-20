@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Personal_Finance_Tracker.Data;
 using Personal_Finance_Tracker.Models.AccountDto;
 using Personal_Finance_Tracker.Models.Entities;
+using Personal_Finance_Tracker.Services.Auth;
 
 namespace Personal_Finance_Tracker.Services.Accounts;
 
@@ -15,7 +16,8 @@ public class AccountService : IAccountService
         }
         public async Task<(Account? account, string? error)> CreateAccount(AccountDto request, int userId) 
         {
-            if (string.IsNullOrWhiteSpace(request.Name)) return (null, "Name cannot be empty");
+        if (DemoGuard.IsDemo(userId)) return (null, "Demo account is read-only. Create one to use full app");
+        if (string.IsNullOrWhiteSpace(request.Name)) return (null, "Name cannot be empty");
             if (request.AccountType == null) return (null, "Account type is required");
             var account = new Account
             {
@@ -38,6 +40,7 @@ public class AccountService : IAccountService
 
         public async Task<(Account? account, string? error)> UpdateAccount(AccountDto request, int userId) 
         {
+        if (DemoGuard.IsDemo(userId)) return (null, "Demo account is read-only. Create one to use full app");
         var income = await context.Transactions
         .Where(t => t.AccountId == request.accountId && t.UserId == userId && t.IsIncome)
         .SumAsync(t => t.Amount);
@@ -59,7 +62,8 @@ public class AccountService : IAccountService
 
         public async Task<(bool success, string? error)> DeleteAccount(int accountId, int userId)
         {
-            var account = await context.Accounts.FirstOrDefaultAsync(a => a.Id == accountId && a.UserId == userId);
+            if (DemoGuard.IsDemo(userId)) return (false, "Demo account is read-only. Create pne to use full app");
+             var account = await context.Accounts.FirstOrDefaultAsync(a => a.Id == accountId && a.UserId == userId);
             if (account == null) return (false, "Account not found");
             context.Accounts.Remove(account);
             await context.SaveChangesAsync();

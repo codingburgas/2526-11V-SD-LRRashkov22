@@ -1,8 +1,9 @@
-﻿using Personal_Finance_Tracker.Models.TransactionDto;
-using Personal_Finance_Tracker.Models;
+﻿using Microsoft.EntityFrameworkCore;
 using Personal_Finance_Tracker.Data;
-using Microsoft.EntityFrameworkCore;
+using Personal_Finance_Tracker.Models;
 using Personal_Finance_Tracker.Models.Entities;
+using Personal_Finance_Tracker.Models.TransactionDto;
+using Personal_Finance_Tracker.Services.Auth;
 namespace Personal_Finance_Tracker.Services.TransactionService;
 
     public class TransactionService : ITransactionService
@@ -14,7 +15,8 @@ namespace Personal_Finance_Tracker.Services.TransactionService;
         }
         public async Task<(TransactionDto? transaction, string? error)> CreateTransaction(CreateTransactionDto request, int userId)
        {
-        if(request.Amount <= 0) return (null, "Amount must be greater than zero.");
+        if (DemoGuard.IsDemo(userId)) return (null, "Demo account is read-only. Create one to use full app");
+        if (request.Amount <= 0) return (null, "Amount must be greater than zero.");
         if (string.IsNullOrWhiteSpace(request.Description))  return (null, "Description is required");
 
         var category = await context.Categories.FirstOrDefaultAsync(c => c.Id == request.CategoryId);

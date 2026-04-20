@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Personal_Finance_Tracker.Data;
 using Personal_Finance_Tracker.Models.CategoryDto;
 using Personal_Finance_Tracker.Models.Entities;
+using Personal_Finance_Tracker.Services.Auth;
 using System.Threading.Tasks;
 namespace Personal_Finance_Tracker.Services.CategoryService;
 
@@ -39,6 +40,7 @@ public class CategoryService : ICategoryService
 
     public async Task<(Category? cat, string? error)> CreateUserCategory(CreateCategoryDto request, int userId)
     {
+        if (DemoGuard.IsDemo(userId)) return (null, "Demo account is read-only. Create one to use full app");
         if (string.IsNullOrEmpty(request.Name)) return (null, "Category name cannot be null");
         if (await context.Categories.AnyAsync(cat => cat.Name == request.Name && cat.UserId == userId)) return (null, "Category name already exists");
         if (request.BudgetLimit < 0) return (null, "Budget limit cannot be negative");
@@ -83,6 +85,7 @@ public class CategoryService : ICategoryService
 
     public async Task<(Category? cat, string? error)> AddCategoryBudgetByUser(int userId, SetBudgetDto request)
     {
+        if (DemoGuard.IsDemo(userId)) return (null, "Demo account is read-only. Create one to use full app");
         if (request.Amount < 0)return (null, "Budget limit cannot be negative");
         var category = await context.Categories.FirstOrDefaultAsync(c => c.Id == request.CategoryId);
         if (category == null) return (null, "Category not found");
@@ -91,9 +94,10 @@ public class CategoryService : ICategoryService
         return (category, null);
     }
 
-    public async Task<(Category? cat, string? error)> UpdateCategoryAdminOnly(CategoryDto request)
+    public async Task<(Category? cat, string? error)> UpdateCategoryAdminOnly(CategoryDto request, int userId)
     {
-            if (request.BudgetLimit < 0) return (null, "Budget limit cannot be negative");
+        if (DemoGuard.IsDemo(userId)) return (null, "Demo account is read-only. Create one to use full app");
+        if (request.BudgetLimit < 0) return (null, "Budget limit cannot be negative");
             if (string.IsNullOrEmpty(request.Name)) return (null, "Category name cannot be null");
            
             var category = await context.Categories.FindAsync(request.Id);
@@ -109,7 +113,8 @@ public class CategoryService : ICategoryService
             return (category, null);    
     }
 
-    public async Task<(Category? cat, string? error)> DeleteCategoryAdminOnly(CategoryDto request) { 
+    public async Task<(Category? cat, string? error)> DeleteCategoryAdminOnly(CategoryDto request, int userId) {
+        if (DemoGuard.IsDemo(userId)) return (null, "Demo account is read-only. Create one to use full app");
         var category = await context.Categories.FindAsync(request.Id);
         if (category == null)
             return (null, "Category not found");
@@ -121,6 +126,7 @@ public class CategoryService : ICategoryService
     //-----------------------------------------------------------------------------------------------------------------
     public async Task<(bool success, string? error)> SetupUserCategories(int userId, CategorySetupDto request)
     {
+        if (DemoGuard.IsDemo(userId)) return (false, "Demo account is read-only. Create pne to use full app");
         var user = await context.Users.FirstOrDefaultAsync(u => u.Id == userId);
 
         if (user == null)

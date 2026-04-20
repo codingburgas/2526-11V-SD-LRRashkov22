@@ -82,7 +82,8 @@ public class AuthService(UserDbContext context, IConfiguration configuration) : 
         var claims = new List<Claim> {
         new Claim(ClaimTypes.Name, user.Username),
         new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-        new Claim(ClaimTypes.Role, user.Role)
+        new Claim(ClaimTypes.Role, user.Role),
+        new Claim("isDemo", DemoGuard.IsDemo(user.Id).ToString())
       };
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration.GetValue<string>("AppSettings:Token")!));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
@@ -144,5 +145,6 @@ public class AuthService(UserDbContext context, IConfiguration configuration) : 
         };
     }
     //Token Response-------------------------------------------------------------
+
 }
 

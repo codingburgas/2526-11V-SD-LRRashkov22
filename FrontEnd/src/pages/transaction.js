@@ -3,9 +3,12 @@ import { getTransactions } from "../api/transactionApi.js";
 import { getCategories } from "../api/categoryApi.js";
 
 let isIncome = true;
+let filters = {
+    type: null,        
+    categoryId: null,
+    accountId: null
+};
 let currentSort = null;
-let currentType = null;
-let currentCategoryId = null;
 
 window.openDeposit = function () {
     isIncome = true;
@@ -61,6 +64,44 @@ function populateCategoryFilterMenu(categories) {
         submenu.appendChild(li);
     });
 }
+async function populateAccountFilterMenu() {
+    const token = getToken();
+
+    const res = await fetch("https://localhost:7095/api/account", {
+        headers: { Authorization: "Bearer " + token }
+    });
+
+    if (!res.ok) return;
+
+    const data = await res.json();
+
+    const submenu = document.getElementById("accountFilterSubmenu");
+    submenu.innerHTML = "";
+
+    submenu.innerHTML += `
+        <li>
+            <button class="dropdown-item" onclick="filterByAccount(null)">
+                All accounts
+            </button>
+        </li>
+    `;
+
+    data.forEach(acc => {
+        submenu.innerHTML += `
+            <li>
+                <button class="dropdown-item" onclick="filterByAccount(${acc.id})">
+                    ${acc.name}
+                </button>
+            </li>
+        `;
+    });
+}
+
+window.filterByAccount = function (id) {
+    filters.accountId = id;
+    renderActiveFilters();
+    loadTable();
+};
 
 window.applyTransactionSort = function (sortType) {
     currentSort = sortType;
@@ -68,19 +109,18 @@ window.applyTransactionSort = function (sortType) {
 };
 
 window.applyTransactionType = function (type) {
-    currentType = type;
+    filters.type = type;
+    renderActiveFilters();
     loadTable();
 };
 
 window.filterTransactionsByCategory = function (categoryId) {
-    currentCategoryId = categoryId;
+    filters.categoryId = categoryId;
+    renderActiveFilters();
     loadTable();
 };
 
-document.addEventListener("DOMContentLoaded", () => {
-    loadCategories();
-    loadTable();
-});
+
 
 window.submitTransaction = async function () {
     const token = getToken();
@@ -130,15 +170,24 @@ async function loadTable() {
     const data = await res.json();
     let transactions = data;
 
-    if (currentType === "income") {
-        transactions = transactions.filter(t => t.isIncome);
-    } else if (currentType === "expenses") {
-        transactions = transactions.filter(t => !t.isIncome);
-    }
 
-    if (currentCategoryId) {
-        transactions = transactions.filter(t => t.categoryId === currentCategoryId);
-    }
+
+
+if (filters.type === "income") {
+    transactions = transactions.filter(t => t.isIncome);
+}
+if (filters.type === "expenses") {
+    transactions = transactions.filter(t => !t.isIncome);
+}
+
+
+if (filters.categoryId !== null) {
+    transactions = transactions.filter(t => t.categoryId === filters.categoryId);
+}
+
+if (filters.accountId !== null) {
+    transactions = transactions.filter(t => t.accountId === filters.accountId);
+}
 
     if (currentSort === "oldest") {
         transactions.sort((a, b) => new Date(a.transactionDate) - new Date(b.transactionDate));
@@ -167,4 +216,61 @@ async function loadTable() {
         tbody.appendChild(tr);
     });
 }
+function renderActiveFilters() {
+    const container = document.getElementById("active-filters");
+    container.innerHTML = "";
 
+    if (filters.type) {
+        container.appendChild(createFilterTag("Type: " + filters.type, () => {
+            filters.type = null;
+            refresh();
+        }));
+    }
+
+    if (filters.categoryId !== null) {
+        container.appendChild(createFilterTag("Category", () => {
+            filters.categoryId = null;
+            refresh();
+        }));
+    }
+
+    if (filters.accountId) {
+        container.appendChild(createFilterTag("Account", () => {
+            filters.accountId = null;
+            refresh();
+        }));
+    }
+}
+function createFilterTag(text, onRemove) {
+    const span = document.createElement("span");
+    span.className = "badge bg-primary";
+
+    span.innerHTML = `
+        ${text}
+        <span style="cursor:pointer;margin-left:6px;">✕</span>
+    `;
+
+    span.querySelector("span").onclick = onRemove;
+
+    return span;
+}
+function refresh() {
+    renderActiveFilters();
+    loadTable();
+}
+window.clearFilters = function () {
+    filters = {
+        type: null,
+        categoryId: null,
+        accountId: null
+    };
+
+    currentSort = null;
+
+    refresh();
+};
+document.addEventListener("DOMContentLoaded", () => {
+    loadCategories();
+    populateAccountFilterMenu();
+    loadTable();
+});

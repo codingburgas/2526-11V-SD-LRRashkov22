@@ -8,8 +8,8 @@ namespace Personal_Finance_Tracker.Services.CategoryService;
         Task<(Category? cat, string? error)> CreateDefaultCategory(CreateCategoryAdminDto request);
     Task<(Category? cat, string? error)> CreateUserCategory(CreateCategoryDto request, int userId);
         Task<(List<Category> cat, string? error)> GetCategory(int userId);
-        Task<(Category? cat, string? error)> UpdateCategoryAdminOnly(CategoryDto request);
-        Task<(Category? cat, string? error)> DeleteCategoryAdminOnly(CategoryDto request);
+        Task<(Category? cat, string? error)> UpdateCategoryAdminOnly(CategoryDto request, int userId);
+        Task<(Category? cat, string? error)> DeleteCategoryAdminOnly(CategoryDto request, int userId);
         Task<(Category? cat, string? error)> AddCategoryBudgetByUser(int userId, SetBudgetDto request);
     //-----------------------------------------------------------------------------------------------------------------
         Task<List<Category>> GetDefaultCategories();

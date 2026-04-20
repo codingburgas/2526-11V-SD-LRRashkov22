@@ -23,6 +23,11 @@
       <a href="./Transaction.html">Transactions</a>
       <a href="./accounts.html">Accounts</a>
     </div>
+<div id="demo-banner"
+     class="alert alert-danger text-center px-0 py-1 d-none"
+     style="font-weight: bold; font-size: larger; color: #000000e0;">
+    Demo account – changes are disabled
+</div>
     <a onclick="logout()">Log Out</a>
   </div>
 
@@ -35,6 +40,7 @@
         <h3>Dashboard</h3> 
         <p class="text-muted" id="welcome-message">Welcome back!</p>
       </div>
+      
       <div>
         <button onclick="openCategoryManager()" class="btn btn-outline-secondary">Manage Categories</button>
       </div>
@@ -147,12 +153,14 @@
   <div class="modal-dialog">
     <div class="modal-content p-3">
 
-      <h5 id="modal-title">Add Transaction</h5>
-
+      <h5 id="transaction-title">Add Transaction</h5>
+      <div id="transaction-error" class="alert alert-danger d-none"></div>
       <input id="amount" class="form-control mb-2" placeholder="Amount" />
       <input id="description" class="form-control mb-2" placeholder="Description" />
       <input type="date" id="date" class="form-control mb-2" placeholder="Date"/>
+      <p class="mb-1"> Choose Category:</p>
       <select id="category" class="form-control mb-2"></select>
+      <p class="mb-1">Choose Account:</p>
       <select id="account" class="form-control mb-2"></select>
 
       <button onclick="submitTransaction()" class="btn btn-primary">Save</button>
@@ -166,8 +174,8 @@
   <div class="modal-dialog">
     <div class="modal-content p-3">
 
-      <h5 id="modal-title">Set Budget</h5>
-
+      <h5 id="budget-title">Set Budget</h5>
+        <div id="budget-error" class="alert alert-danger d-none"></div>
       <input id="limit-amount" class="form-control mb-2" placeholder="Limit Amount" />
       <select id="budgetLimit-category" class="form-control mb-2"></select>
       <button onclick="submitBudgetLimit()" class="btn btn-primary">Save</button>
@@ -194,10 +202,10 @@
       <button onclick="addCustomCategory()" class="btn btn-outline-secondary mb-3">
         + Add category
       </button>
+      <div id="setup-error" class="alert alert-danger d-none"></div>
 <div id="setup-account-section">
     <hr/>
     <h6>Create your first account</h6>
-
     <input id="setup-account-name" class="form-control mb-2" placeholder="Account name" />
 
     <select id="setup-account-type" class="form-control mb-3">

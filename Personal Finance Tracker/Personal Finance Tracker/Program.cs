@@ -56,25 +56,36 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod());
 });
 var app = builder.Build();
-using (var scope = app.Services.CreateScope())
-{
-    var context = scope.ServiceProvider.GetRequiredService<UserDbContext>();
 
-    if (!context.Users.Any(u => u.Role == "Admin"))
-    {
-        var admin = new User
-        {
-            Username = "adi",
-            Role = "Admin"
-        };
+//using (var scope = app.Services.CreateScope())
+//{
+//    var context = scope.ServiceProvider.GetRequiredService<UserDbContext>();
 
-        admin.PasswordHash = new PasswordHasher<User>()
-            .HashPassword(admin, "adi");
+//    var demoUser = new User
+//    {
+//        Username = "demo",
+//        Role = "User"
+//    };
+//    demoUser.PasswordHash = new PasswordHasher<User>()
+//        .HashPassword(demoUser, "demo");
 
-        context.Users.Add(admin);
-        context.SaveChanges();
-    }
-}
+//    context.Users.Add(demoUser);
+//    context.SaveChanges();
+//    if (!context.Users.Any(u => u.Role == "Admin"))
+//    {
+//        var admin = new User
+//        {
+//            Username = "admin",
+//            Role = "Admin"
+//        };
+
+//        admin.PasswordHash = new PasswordHasher<User>()
+//            .HashPassword(admin, "admin");
+
+//        context.Users.Add(admin);
+//        context.SaveChanges();
+//    }
+//}
 
 if (app.Environment.IsDevelopment())
 {

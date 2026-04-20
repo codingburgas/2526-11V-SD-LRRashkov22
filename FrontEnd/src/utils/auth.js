@@ -14,12 +14,26 @@ export function parseJwt(token) {
     }
 }
 
+export function getIsDemoFromToken() {
+    const token = localStorage.getItem("token");
+
+    if (!token) return false;
+
+    const payload = JSON.parse(atob(token.split('.')[1]));
+
+    return payload.isDemo === "True" || payload.isDemo === "true";
+}
+
 export function getToken() {
     return localStorage.getItem("token");
 }
 
 export function getRole() {
     return localStorage.getItem("role");
+}
+
+export function isDemoUser() {
+    return localStorage.getItem("isDemo") === "true";
 }
 
 export function isTokenExpired(token) {
@@ -40,16 +54,17 @@ export function saveAuth(data) {
         payload.nameid ||
         payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];
 
-const username =
+    const username =
     payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"] ||
     payload.unique_name ||
     payload.name ||
     "";
-
+    const isDemo = payload.isDemo === "True" || payload.isDemo === "true";
     localStorage.setItem("username", username);
     localStorage.setItem("token", token);
     localStorage.setItem("role", role || "User");
     localStorage.setItem("userId", userId || "");
+    localStorage.setItem("isDemo", isDemo);
 }
 export function getUsername() {
     return localStorage.getItem("username");

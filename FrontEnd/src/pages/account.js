@@ -1,5 +1,7 @@
 import { getToken } from "../utils/auth.js";
-
+import {showModalError} from "../main.js";
+import {clearModalError} from "../main.js";
+import {isDemoUser} from "../utils/auth.js";
 let pieChart;
 let lineChart;
 let selectedAccountId = null;
@@ -16,19 +18,32 @@ function getAccountTypeName(type) {
 }
 
 window.openAddAccount = function () {
+    clearModalError("account");
+        const isDemo = isDemoUser();
+
+    document.querySelectorAll("#accountModal input, #accountModal select")
+        .forEach(el => {
+            if (el.type !== "button") {
+                el.disabled = isDemo;
+            }
+        });
+
     new bootstrap.Modal(document.getElementById('accountModal')).show();
 };
 
 window.submitAccount = async function () {
     const token = getToken();
-
+    if (isDemoUser()) {
+    showModalError("Demo account is read-only. Create one to use full app", "account");
+    return;
+}
     const name = document.getElementById("account-name").value;
     const type = parseInt(document.getElementById("account-type").value);
 
-    if (!name) {
-        alert("Name required");
-        return;
-    }
+        if (!name) {
+            showModalError("Name required", "account");
+            return;
+        }
 
     const res = await fetch("https://localhost:7095/api/account", {
         method: "POST",
@@ -44,7 +59,8 @@ window.submitAccount = async function () {
     });
 
     if (!res.ok) {
-        alert("Error");
+    const error = await res.text();
+    showModalError(error || "Error creating account", "account");
         return;
     }
 
@@ -195,7 +211,7 @@ async function loadAccounts() {
     });
 
     if (!res.ok) return;
-
+    const isDemo = isDemoUser();
     const data = await res.json();
     const colors = renderPieChart(data);
     const table = document.getElementById("accounts-table");
@@ -217,15 +233,19 @@ async function loadAccounts() {
         ${a.name}</td>
             <td>${a.balance}</td>
             <td>${getAccountTypeName(a.accountType)}</td>
-            <td class="text-end">
-                <button class="btn btn-sm btn-outline-primary me-1" onclick="startEditRow(this, ${a.id}, '${a.name}', ${a.accountType})">
-                    ✏️
-                </button>
+           <td class="text-end">
+    <button class="btn btn-sm btn-outline-primary me-1"
+        ${isDemo ? "disabled" : ""}
+        onclick="startEditRow(this, ${a.id}, '${a.name}', ${a.accountType})">
+        ✏️
+    </button>
 
-                <button class="btn btn-sm btn-outline-danger" onclick="deleteAccount(${a.id}, this)">
-                    ❌
-                </button>
-            </td>
+    <button class="btn btn-sm btn-outline-danger"
+        ${isDemo ? "disabled" : ""}
+        onclick="deleteAccount(${a.id}, this)">
+        ❌
+    </button>
+</td>
         `;
         tr.querySelectorAll("button").forEach(btn => {
             btn.addEventListener("click", e => e.stopPropagation());
@@ -254,7 +274,7 @@ async function loadAccounts() {
 }
 
 window.startEditRow = function (btn, id, name, type) {
-
+    if (isDemoUser()) return;
     if (editingRowId !== null) return; // 🔥 само 1 edit
 
     editingRowId = id;
@@ -301,7 +321,10 @@ window.startEditRow = function (btn, id, name, type) {
 };
 window.saveEdit = async function (id) {
     const token = getToken();
-
+    if (isDemoUser()) {
+        showModalError("Demo account is read-only. Create one to use full app", "account");
+        return;
+    }
     const name = document.getElementById(`edit-name-${id}`).value;
     const type = parseInt(document.getElementById(`edit-type-${id}`).value);
 
@@ -319,7 +342,7 @@ window.saveEdit = async function (id) {
     });
 
     if (!res.ok) {
-        alert("Update failed");
+        showModalError("Update failed", "account");
         return;
     }
 
@@ -329,7 +352,10 @@ window.saveEdit = async function (id) {
 
 window.deleteAccount = async function (id, btn) {
     const token = getToken();
-
+    if (isDemoUser()) {
+        showModalError("Demo account is read-only. Create one to use full app", "account");
+        return;
+    }
     if (!confirm("Delete this account?")) return;
 
     const res = await fetch(`https://localhost:7095/api/account/${id}`, {
@@ -340,7 +366,7 @@ window.deleteAccount = async function (id, btn) {
     });
 
     if (!res.ok) {
-        alert("Delete failed");
+        showModalError("Delete failed", "account");
         return;
     }
 

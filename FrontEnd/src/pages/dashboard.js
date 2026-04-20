@@ -4,6 +4,9 @@ import { getTransactions, getRecentTransactions } from "../api/transactionApi.js
 import { getCategories, getSetupStatus, setupCategories } from "../api/categoryApi.js";
 import { getChartData } from "../api/dashboardApi.js";
 import { getAccounts } from "../api/accountApi.js";
+import {showModalError} from "../main.js";
+import {clearModalError} from "../main.js";
+import { isDemoUser } from "../utils/auth.js";
 
 let isIncome = true;
 let chartInstance;
@@ -21,26 +24,50 @@ window.setMode = function (mode, days) {
     loadChart();
 };
 window.openDeposit = function () {
+    clearModalError("transaction");
     isIncome = true;
     currentModal = "transaction";
     loadCategories();
     loadAccounts();
-    document.getElementById("modal-title").innerText = "Deposit";
+    document.getElementById("transaction-title").innerText = "Deposit";
+    const isDemo = isDemoUser();
+    document.querySelectorAll("#transactionModal input, #transactionModal select")
+    .forEach(el => {
+    if (el.type !== "button") {
+        el.disabled = isDemo;
+    }
+});
     new bootstrap.Modal(document.getElementById('transactionModal')).show();
 };
 
 window.openWithdraw = function () {
+    clearModalError("transaction");
     isIncome = false;
     currentModal = "transaction";
     loadCategories();
     loadAccounts();
-    document.getElementById("modal-title").innerText = "Withdraw";
+    document.getElementById("transaction-title").innerText = "Withdraw";
+    const isDemo = isDemoUser();
+    document.querySelectorAll("#transactionModal input, #transactionModal select")
+    .forEach(el => {
+    if (el.type !== "button") {
+        el.disabled = isDemo;
+    }
+});
     new bootstrap.Modal(document.getElementById('transactionModal')).show();
 };
 window.openSetBudgets = function () {
+    clearModalError("budget");
     currentModal = "budget";
     loadCategories();
-    document.getElementById("modal-title").innerText = "Set Budget";
+    document.getElementById("budget-title").innerText = "Set Budget";
+    const isDemo = isDemoUser();
+    document.querySelectorAll("#BudgetModal input, #BudgetModal select")
+    .forEach(el => {
+    if (el.type !== "button") {
+        el.disabled = isDemo;
+    }
+});
     new bootstrap.Modal(document.getElementById('BudgetModal')).show();
 };
 async function loadCategories() {
@@ -69,8 +96,8 @@ async function loadCategories() {
     :  data.filter(c => c.isIncome === isIncome);
     filtered.forEach(c => {
         const option = document.createElement("option");
-        option.value = c.id;
-        option.text = c.name;
+          option.value = c.id;
+          option.text = c.name;
         select.appendChild(option);
     });
 
@@ -92,8 +119,8 @@ async function loadAccounts() {
 
     data.forEach(a => {
         const option = document.createElement("option");
-        option.value = a.id;
-        option.text = a.name;
+         option.value = a.id;
+         option.text = a.name;
         select.appendChild(option);
     });
 }
@@ -135,7 +162,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 window.submitTransaction = async function () {
     const token = getToken();
-
+    if (isDemoUser()) {
+        showModalError("Demo account is read-only", "transaction");
+        return;
+    }
     const amount = parseFloat(document.getElementById("amount").value);
     const description = document.getElementById("description").value;
     const categoryId = parseInt(document.getElementById("category").value);
@@ -143,7 +173,7 @@ window.submitTransaction = async function () {
     const accountId = parseInt(document.getElementById("account").value);
     
     if (!accountId || !amount || !categoryId || !dateValue) {
-        alert("Fill all fields");
+        showModalError("Fill all fields", "transaction");
         return;
     }
 
@@ -166,7 +196,7 @@ window.submitTransaction = async function () {
     });
 
     if (!res.ok) {
-        alert("Error creating transaction");
+        showModalError("Error creating transaction", "transaction");
         return;
     }
 
@@ -354,19 +384,22 @@ async function loadChart() {
 import { PutBudgetLimit } from "../api/dashboardApi.js";
 window.submitBudgetLimit = async function () {
     const token = getToken();
-
+        if (isDemoUser()) {
+            showModalError("Demo account is read-only", "budget");
+            return;
+        }
     const amount = parseFloat(document.getElementById("limit-amount").value);
     const categoryId = parseInt(document.getElementById("budgetLimit-category").value);
     
     if (!amount || !categoryId) {
-        alert("Fill all fields");
+        showModalError("Fill all fields", "budget");
         return;
     }
 
     const res = await PutBudgetLimit(token, { amount, categoryId });
 
     if (!res.ok) {
-        alert("Error creating transaction");
+        showModalError("Error creating budget", "budget");
         return;
     }
 
@@ -382,6 +415,13 @@ window.submitBudgetLimit = async function () {
 // ---------- SETUP ----------
 async function checkSetup() {
     const token = getToken();
+    const isDemo = isDemoUser();
+    // document.querySelectorAll("#SetupModal input, #SetupModal select")
+    // .forEach(el => {
+    //     if (el.type !== "button") {
+    //         el.disabled = isDemo;
+    //     }
+    // });
     const res = await getSetupStatus(token);
     if (!res.ok) return;
     const isDone = await res.json();
@@ -424,6 +464,10 @@ async function loadDefaultCategoriesForSetup() {
 
 window.submitSetup = async function () {
     const token = getToken();
+    if (isDemoUser()) {
+    showModalError("Demo account is read-only. Create one to use full app", "setup");
+    return;
+        }
     const selected = [];
     const custom = [];
     document.querySelectorAll("#setup-categories input[type=checkbox]").forEach(cb => {
@@ -431,10 +475,17 @@ window.submitSetup = async function () {
     });
     const accountName = document.getElementById("setup-account-name").value;
     const accountType = parseInt(document.getElementById("setup-account-type").value);
-    if (isSetupMode && !accountName && !accountType) {
-        alert("Account name and type are required");
+if (isSetupMode) {
+    if (!accountName || accountName.trim() === "") {
+        showModalError("Account name is required", "setup");
         return;
     }
+
+    if (isNaN(accountType)) {
+        showModalError("Account type is required", "setup");
+        return;
+    }
+}
     if (isSetupMode) {
     await fetch("https://localhost:7095/api/account", {
         method: "POST",
@@ -448,14 +499,11 @@ window.submitSetup = async function () {
         })
     });
 }
+
     document.querySelectorAll(".custom-category").forEach(row => {
         const name = row.querySelector(".name").value;
         const amount = parseFloat(row.querySelector(".amount").value);
         const isIncome = row.querySelector(".type").value === "income";
-        if (!accountName) {
-            alert("Account name is required");
-            return;
-        } 
         if (name) {
             custom.push({
                 name,
@@ -471,7 +519,7 @@ window.submitSetup = async function () {
     });
 
     if (!res.ok) {
-        alert("Setup failed");
+        showModalError("Setup failed", "setup");
         return;
     }
     bootstrap.Modal.getInstance(document.getElementById('SetupModal')).hide();
@@ -507,9 +555,10 @@ window.handleSave = function () {
 
 //----------------------------------------------------------------
 window.openCategoryManager = async function () {
+    clearModalError("setup");
     const token = getToken();
+    const isDemo = isDemoUser();
 
-    // 🔥 взимаме user категории
     const res = await getCategories(token);
     if (!res.ok) return;
 
@@ -518,7 +567,6 @@ window.openCategoryManager = async function () {
     document.getElementById("setup-account-section").style.display = "none";
     const container = document.getElementById("setup-categories");
     container.innerHTML = "";
-    // 🔥 показваме ВСИЧКИ user категории (editable)
     data.forEach(c => {
         const div = document.createElement("div");
 
@@ -533,22 +581,32 @@ window.openCategoryManager = async function () {
 
                 <input type="number" class="form-control w-25 amount" value="${c.budgetLimit}" data-id="${c.id}" />
 
-                <button class="btn btn-danger btn-sm" onclick="deleteCategory(${c.id})">X</button>
+                <button class="btn btn-danger btn-sm" ${isDemo ? "disabled" : ""}  onclick="deleteCategory(${c.id})">X</button>
             </div>
         `;
 
         container.appendChild(div);
     });
+if (isDemo) {
+    document.querySelectorAll("#SetupModal .name, #SetupModal .type, #SetupModal .amount")
+        .forEach(el => el.disabled = true);
 
-    // 🔥 чистим custom section
+    // disable "+ Add category"
+    const addBtn = document.querySelector("button[onclick='addCustomCategory()']");
+    if (addBtn) addBtn.disabled = true;
+}
     document.getElementById("custom-categories").innerHTML = "";
 
     new bootstrap.Modal(document.getElementById('SetupModal')).show();
+    
 };
 
 window.saveCategoryChanges = async function () {
     const token = getToken();
-
+if (isDemoUser()) {
+    showModalError("Demo account is read-only. Create one to use full app", "setup");
+    return;
+}
     const rows = document.querySelectorAll("#setup-categories > div, #custom-categories > div");
 
     for (const row of rows) {
@@ -564,36 +622,43 @@ window.saveCategoryChanges = async function () {
             budgetLimit: parseFloat(amountInput.value) || 0
         };
 
-        // 🔥 ако има id → UPDATE
-        if (id) {
-            await fetch(`https://localhost:7095/api/categories/${id}`, {
+        let res;
+
+        // 🔥 UPDATE
+        if (id !== undefined && id !== null && id !== "") {
+            res = await fetch(`https://localhost:7095/api/categories/${id}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: "Bearer " + token
                 },
-body: JSON.stringify({
-    Id: parseInt(id),
-    Name: payload.name,
-    IsIncome: payload.isIncome,
-    BudgetLimit: payload.budgetLimit
-})
+                body: JSON.stringify({
+                    Id: parseInt(id),
+                    Name: payload.name,
+                    IsIncome: payload.isIncome,
+                    BudgetLimit: payload.budgetLimit
+                })
             });
         }
-        // 🔥 ако НЯМА id → CREATE
+        // 🔥 CREATE
         else {
-            await fetch(`https://localhost:7095/api/categories`, {
+            res = await fetch(`https://localhost:7095/api/categories`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: "Bearer " + token
                 },
-body: JSON.stringify({
-    Name: payload.name,
-    IsIncome: payload.isIncome,
-    BudgetLimit: payload.budgetLimit
-})
+                body: JSON.stringify({
+                    Name: payload.name,
+                    IsIncome: payload.isIncome,
+                    BudgetLimit: payload.budgetLimit
+                })
             });
+        }
+        if (!res.ok) {
+            const err = await res.text();
+            showModalError(err || "Category update failed", "setup");
+            return; // спира whole save
         }
     }
 
@@ -606,13 +671,20 @@ body: JSON.stringify({
 
 window.deleteCategory = async function (id) {
     const token = getToken();
-
-    await fetch(`https://localhost:7095/api/categories/${id}`, {
+        if (isDemoUser()) {
+        showModalError("Demo account is read-only", "setup");
+        return;
+         }
+    const res = await fetch(`https://localhost:7095/api/categories/${id}`, {
         method: "DELETE",
         headers: {
             Authorization: "Bearer " + token
         }
     });
-
+        if (!res.ok) {
+            const err = await res.text();
+            showModalError(err || "Delete failed", "setup");
+            return;
+        }
     document.querySelector(`[data-id="${id}"]`)?.closest("div").remove();
 };
